@@ -32,6 +32,42 @@ TABLE_TITLES = {
     ),
 }
 
+# Questionnaire questions
+UNDERSTANDING = props.Translatable({
+    "en": "How would you describe the information that you shared with Utrecht University researchers?",
+    "nl": "Open vraag?"
+})
+
+INDENTIFY_CONSUMPTION = props.Translatable({"en": "In case you looked at the data presented on this page, did you recognise your Netflix watching patterns?", "nl": "asd"})
+IDENTIFY_CONSUMPTION_CHOICES = [
+    props.Translatable({"en": "I recognized my Netflix watching patterns", "nl": "asd"}),
+    props.Translatable({"en": "I recognized my Netflix watching patterns and patters of those I share my account with", "nl": "asd"}),
+    props.Translatable({"en": "I recognized mostly the watching patterns of those I share my account with", "nl": "asd"}),
+    props.Translatable({"en": "I did not look at my data ", "nl": "asd"}),
+    props.Translatable({"en": "Other", "nl": "asd"})
+]
+
+ENJOYMENT = props.Translatable({"en": "In case you looked at the data presented on this page, how interesting did you find looking at your data?", "nl": "asd"})
+ENJOYMENT_CHOICES = [
+    props.Translatable({"en": "not at all interesting", "nl": "asd"}),
+    props.Translatable({"en": "somewhat uninteresting", "nl": "asd"}),
+    props.Translatable({"en": "neither interesting nor uninteresting", "nl": "asd"}),
+    props.Translatable({"en": "somewhat interesting", "nl": "asd"}),
+    props.Translatable({"en": "very interesting", "nl": "asd"})
+]
+
+ADDITIONAL_COMMENTS = props.Translatable({
+    "en": "Do you have any additional comments about the donation? Please add them here.",
+    "nl": "Open vraag?"
+})
+
+
+#Not donate questions
+NO_DONATION_REASONS = props.Translatable({
+    "en": "What is/are the reason(s) that you decided not to donate your data?",
+    "nl": "Open vraag?"
+})
+
 
 def process(session_id):
     LOGGER.info("Starting the donation flow")
@@ -127,22 +163,36 @@ def process(session_id):
             prompt = create_consent_form(table_list)
             consent_result = yield render_donation_page(platform_name, prompt, progress)
 
+            # Data was donated
             if consent_result.__type__ == "PayloadJSON":
                 LOGGER.info("Data donated; %s", platform_name)
                 yield donate(platform_name, consent_result.value)
                 yield donate_logs(f"{session_id}-tracking")
+
+                progress += step_percentage
+                # render happy questionnaire
+                render_questionnaire_results = yield render_questionnaire(progress)
+
+                if render_questionnaire_results.__type__ == "PayloadJSON":
+                    yield donate("questionnaire_results", render_questionnaire_results.value)
+                else:
+                    LOGGER.info("Skipped questionnaire: %s", platform_name)
+                    yield donate_logs(f"{session_id}-tracking")
+
+            # Data was not donated
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
 
-            progress += step_percentage
-            render_questionnaire_results = yield render_questionnaire(progress)
+                progress += step_percentage
 
-            if render_questionnaire_results.__type__ == "PayloadJSON":
-                yield donate("questionnaire_results", render_questionnaire_results.value)
-            else:
-                LOGGER.info("Skipped questionnaire: %s", platform_name)
-                yield donate_logs(f"{session_id}-tracking")
+                # render sad questionnaire
+                render_questionnaire_results = yield render_questionnaire_no_donation(progress)
+                if render_questionnaire_results.__type__ == "PayloadJSON":
+                    yield donate("questionnaire_results", render_questionnaire_results.value)
+                else:
+                    LOGGER.info("Skipped questionnaire: %s", platform_name)
+                    yield donate_logs(f"{session_id}-tracking")
 
             break
 
@@ -293,33 +343,39 @@ def extract_users(netflix_zip):
 
 
 def render_questionnaire(progress):
-    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
-    question1 = props.Translatable({"en": "Question?", "nl": "Vraag?"})
-    choices1 = [
-        props.Translatable({"en": "Banana", "nl": "Banaan"}),
-        props.Translatable({"en": "Pear", "nl": "Appel"})
-    ]
-
-    question2 = props.Translatable({"en": "Checkbox Question?", "nl": "Tjekbox Vraag?"})
-    choices2 = [
-        props.Translatable({"en": "Banana", "nl": "Banaan"}),
-        props.Translatable({"en": "Pinaple", "nl": "Ananas"}),
-        props.Translatable({"en": "Pear", "nl": "Appel"})
-    ]
-
-    question3 = props.Translatable({"en": "Open question?", "nl": "Open vraag?"})
 
     questions = [
-        props.PropsUIQuestionMultipleChoice(question=question1, id=1, choices=choices1),
-        props.PropsUIQuestionMultipleChoiceCheckbox(question=question2, id=2, choices=choices2),
-        props.PropsUIQuestionOpen(question=question3, id=3)
+        props.PropsUIQuestionOpen(question=UNDERSTANDING, id=1),
+        props.PropsUIQuestionMultipleChoice(question=INDENTIFY_CONSUMPTION, id=2, choices=IDENTIFY_CONSUMPTION_CHOICES),
+        props.PropsUIQuestionMultipleChoice(question=ENJOYMENT, id=3, choices=ENJOYMENT_CHOICES),
+        props.PropsUIQuestionOpen(question=ADDITIONAL_COMMENTS, id=4),
     ]
-    description = props.Translatable({"en": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", "nl": "asd"})
+
+    description = props.Translatable({"en": "Lorem ipsum dolor sit amet", "nl": "Lorem ipsum"})
+    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
     body = props.PropsUIPromptQuestionnaire(questions=questions, description=description)
     footer = props.PropsUIFooter(progress)
 
     page = props.PropsUIPageDonation("ASD", header, body, footer)
     return CommandUIRender(page)
+
+def render_questionnaire_no_donation(progress):
+    questions = [
+        props.PropsUIQuestionOpen(question=UNDERSTANDING, id=1),
+        props.PropsUIQuestionMultipleChoice(question=INDENTIFY_CONSUMPTION, id=2, choices=IDENTIFY_CONSUMPTION_CHOICES),
+        props.PropsUIQuestionMultipleChoice(question=ENJOYMENT, id=3, choices=ENJOYMENT_CHOICES),
+        props.PropsUIQuestionOpen(question=NO_DONATION_REASONS, id=5),
+        props.PropsUIQuestionOpen(question=ADDITIONAL_COMMENTS, id=4),
+    ]
+
+    description = props.Translatable({"en": "Lorem ipsum dolor sit amet", "nl": "Lorem ipsum"})
+    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
+    body = props.PropsUIPromptQuestionnaire(questions=questions, description=description)
+    footer = props.PropsUIFooter(progress)
+
+    page = props.PropsUIPageDonation("ASD", header, body, footer)
+    return CommandUIRender(page)
+
 
 ##########################################
 # Functions provided by Eyra did not change
