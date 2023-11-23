@@ -131,6 +131,24 @@ def ratings_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
     return df
 
 
+
+def time_string_to_hours(time_str):
+    try:
+        # Split the time string into hours, minutes, and seconds
+        hours, minutes, seconds = map(int, time_str.split(':'))
+
+        # Convert each component to hours
+        hours_in_seconds = hours * 3600
+        minutes_in_seconds = minutes * 60
+
+        # Sum up the converted values
+        total_hours = (hours_in_seconds + minutes_in_seconds + seconds) / 3600
+    except:
+        return 0
+
+    return round(total_hours, 3)
+
+
 def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
     """
     Extract ViewingActivity from netflix zip to df
@@ -139,7 +157,8 @@ def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFram
 
     columns_to_keep = ["Start Time","Duration","Attributes","Title","Supplemental Video Type","Device Type"]
     columns_to_rename =  {
-        "Device Type": "Device"
+        "Device Type": "Device",
+        "Duration": "Duration in hours"
     }
 
     df = netflix_to_df(netflix_zip, "ViewingActivity.csv", selected_user)
@@ -149,6 +168,8 @@ def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFram
         if not df.empty:
             df = df[columns_to_keep]
             df = df.rename(columns=columns_to_rename)
+
+        df['Duration in hours'] = df['Duration in hours'].apply(time_string_to_hours)
     except Exception as e:
         logger.error("Data extraction error: %s", e)
         
