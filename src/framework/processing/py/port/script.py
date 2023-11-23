@@ -275,12 +275,11 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
 
-        
         date_graph = props.PropsUIChartVisualization(
-            title=props.Translatable({"en": "Number of viewings over time", "nl": "Aantal gezien over tijd"}),
+            title=props.Translatable({"en": "Hours Netflix watched per term", "nl": "Uren Netflix gekeken per kwartaal"}),
             type="area",
             group= props.PropsUIChartGroup(column="Start Time", dateFormat="auto"),
-            values= [props.PropsUIChartValue(label='N', column='Duration', addZeroes= True)]
+            values= [props.PropsUIChartValue(label='Uren Netflix gekeken', column='Duration in hours', aggregate="sum", addZeroes= True)]
         )
         table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, [date_graph]) 
         tables_to_render.append(table)
