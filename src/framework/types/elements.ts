@@ -427,6 +427,7 @@ export function isPropsUITableCell (arg: any): arg is PropsUITableCell {
 
 export interface TableContext {
   title: string
+  description: string
   deletedRowCount: number
   annotations: Annotation[]
   originalBody: PropsUITableBody
@@ -478,7 +479,11 @@ export interface PropsUIQuestionMultipleChoice {
   choices: Text[]
 }
 export function isPropsUIQuestionMultipleChoice (arg: any): arg is PropsUIQuestionMultipleChoice {
-  return isInstanceOf<PropsUIQuestionMultipleChoice>(arg, 'PropsUIQuestionMultipleChoice', ['id', 'question', 'choices'])
+  return isInstanceOf<PropsUIQuestionMultipleChoice>(arg, 'PropsUIQuestionMultipleChoice', [
+    'id',
+    'question',
+    'choices'
+  ])
 }
 
 export interface PropsUIQuestionMultipleChoiceCheckbox {
@@ -487,8 +492,14 @@ export interface PropsUIQuestionMultipleChoiceCheckbox {
   question: Text
   choices: Text[]
 }
-export function isPropsUIQuestionMultipleChoiceCheckbox (arg: any): arg is PropsUIQuestionMultipleChoiceCheckbox {
-  return isInstanceOf<PropsUIQuestionMultipleChoiceCheckbox>(arg, 'PropsUIQuestionMultipleChoiceCheckbox', ['id', 'question', 'choices'])
+export function isPropsUIQuestionMultipleChoiceCheckbox (
+  arg: any
+): arg is PropsUIQuestionMultipleChoiceCheckbox {
+  return isInstanceOf<PropsUIQuestionMultipleChoiceCheckbox>(
+    arg,
+    'PropsUIQuestionMultipleChoiceCheckbox',
+    ['id', 'question', 'choices']
+  )
 }
 
 export interface PropsUIQuestionOpen {

@@ -27,7 +27,7 @@ export async function prepareTextData (
     visualization.valueColumn != null ? getTableColumn(table, visualization.valueColumn) : null
 
   const vocabulary = getVocabulary(texts, values, visualization)
-  visualizationData.topTerms = getTopTerms(vocabulary, texts.length, 200)
+  visualizationData.topTerms = getTopTerms(vocabulary, texts.length, 200, visualization.tokenize)
 
   return visualizationData
 }
@@ -56,18 +56,26 @@ function getVocabulary (
       if (!isNaN(v)) vocabulary[token].value += v
     }
   }
+
+  if (visualization.valueAggregation === 'mean') {
+    for (const token of Object.keys(vocabulary)) {
+      vocabulary[token].value /= vocabulary[token].docFreq
+    }
+  }
   return vocabulary
 }
 
 function getTopTerms (
   vocabulary: Record<string, VocabularyStats>,
   nDocs: number,
-  topTerms: number
+  topTerms: number,
+  useIdf: boolean = true
 ): ScoredTerm[] {
+  console.log('hhhh')
   const words = Object.entries(vocabulary)
     .map(([text, stats]) => {
       const tf = Math.log(1 + stats.value)
-      const idf = Math.log(nDocs / stats.docFreq)
+      const idf = useIdf ? Math.log(nDocs / stats.docFreq) + 0.001 : 1
       return { text, value: stats.value, importance: tf * idf }
     })
     .sort((a, b) => b.importance - a.importance)

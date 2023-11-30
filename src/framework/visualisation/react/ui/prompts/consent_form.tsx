@@ -80,7 +80,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
 
   function rows (data: any): PropsUITableRow[] {
     const result: PropsUITableRow[] = []
-    for (let row = 0; row <= rowCount(data); row++) {
+    const n = rowCount(data)
+    for (let row = 0; row <= n; row++) {
       const id = `${row}`
       const cells = columnNames(data).map((column: string) => rowCell(data, column, row))
       result.push({ __type__: 'PropsUITableRow', id, cells })
@@ -97,6 +98,10 @@ export const ConsentForm = (props: Props): JSX.Element => {
   function parseTable (tableData: PropsUIPromptConsentFormTable): PropsUITable & TableContext {
     const id = tableData.id
     const title = Translator.translate(tableData.title, props.locale)
+    const description =
+      tableData.description !== undefined
+        ? Translator.translate(tableData.description, props.locale)
+        : ''
     const deletedRowCount = 0
     const dataFrame = JSON.parse(tableData.data_frame)
     const headCells = columnNames(dataFrame).map((column: string) => headCell(dataFrame, column))
@@ -109,6 +114,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
       head,
       body,
       title,
+      description,
       deletedRowCount,
       annotations: [],
       originalBody: body,
@@ -173,7 +179,7 @@ export const ConsentForm = (props: Props): JSX.Element => {
         <BodyLarge text={description} />
       </div>
       <div className='flex flex-col gap-16 w-full'>
-        <div className='grid gap-8 max-w-full'>
+        <div className='grid gap-4 md:gap-8 max-w-full'>
           {tables.map((table) => {
             return (
               <TableContainer

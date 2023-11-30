@@ -261,27 +261,36 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
+        table_description = props.Translatable({"en": "We can add a short description here", "nl": "Hier kunnen we een korte beschrijving toevoegen"})
         wordcloud = props.PropsUITextVisualization(
             title=props.Translatable({"en": "Highest ratings", "nl": "Hoogste ratings"}),
             type="wordcloud",
             text_column="Title Name",
-            value_column="Thumbs Value"        
+            value_column="Thumbs Value",
+            value_aggregation="mean"      
         )
-        table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df, [wordcloud])
+        table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df, table_description, [wordcloud])
         tables_to_render.append(table)
 
     # Extract the viewing activity
     df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
     if not df.empty:
         table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
+        table_description = None
 
         date_graph = props.PropsUIChartVisualization(
-            title=props.Translatable({"en": "Hours Netflix watched per term", "nl": "Uren Netflix gekeken per kwartaal"}),
+            title=props.Translatable({"en": "Hours Netflix watched", "nl": "Uren Netflix gekeken"}),
             type="area",
-            group= props.PropsUIChartGroup(column="Start Time", dateFormat="auto"),
+            group= props.PropsUIChartGroup(column="Start Time", label='Datum', dateFormat="auto"),
             values= [props.PropsUIChartValue(label='Uren Netflix gekeken', column='Duration in hours', aggregate="sum", addZeroes= True)]
         )
-        table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, [date_graph]) 
+        hour_graph = props.PropsUIChartVisualization(
+            title=props.Translatable({"en": "At what time of the day do you watch?", "nl": "Op welk tijdstip van de dag kijk je?"}),
+            type="bar",
+            group= props.PropsUIChartGroup(column="Start Time", label='Uur van de dag', dateFormat="hour_cycle"),
+            values= [props.PropsUIChartValue(label='Aantal uur gekeken', column='Duration in hours', aggregate="sum", addZeroes= True)]
+        )
+        table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, table_description, [date_graph, hour_graph]) 
         tables_to_render.append(table)
     
     # Extract the clickstream
