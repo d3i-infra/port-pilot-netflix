@@ -23,6 +23,7 @@ export interface Props {
   show: boolean
   locale: string
   search: string
+  unfilteredRows: number
   handleDelete?: (rowIds: string[]) => void
   handleUndo?: () => void
   pageSize?: number
@@ -40,6 +41,7 @@ export const Table = ({
   show,
   locale,
   search,
+  unfilteredRows,
   handleDelete,
   handleUndo,
   pageSize = 7
@@ -48,6 +50,7 @@ export const Table = ({
   const columnNames = useMemo(() => table.head.cells.map((cell) => cell.text), [table])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const ref = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const nPages = Math.ceil(table.body.rows.length / pageSize)
   const selectedLabel = selected.size.toLocaleString(locale, { useGrouping: true })
   const text = useMemo(() => getTranslations(locale), [locale])
@@ -59,7 +62,7 @@ export const Table = ({
     y: 0
   })
 
-  const cellClass = ' h-[3rem] px-3 flex items-center font-table-row'
+  const cellClass = ' min-h-[2.1rem] md:min-h-[2.5rem]  px-3 flex items-center font-table-row'
 
   useEffect(() => {
     setSelected(new Set())
@@ -77,21 +80,21 @@ export const Table = ({
 
   useLayoutEffect(() => {
     // set exact height of grid row for height transition
-    if (ref.current == null) return
-    if (!show) {
+    if (ref.current == null || innerRef.current == null) return
+    if (!show || unfilteredRows === 0) {
       ref.current.style.gridTemplateRows = '0rem'
       return
     }
 
     function responsiveHeight (): void {
-      if (ref.current == null) return
-      ref.current.style.gridTemplateRows = `${ref.current.scrollHeight}px`
+      if (ref.current == null || innerRef.current == null) return
+      ref.current.style.gridTemplateRows = `${innerRef.current.scrollHeight}px`
     }
     responsiveHeight()
     // just as a precaution, update height every second in case it changes
     const interval = setInterval(responsiveHeight, 1000)
     return () => clearInterval(interval)
-  }, [ref, show, nPages])
+  }, [ref, innerRef, show, nPages, unfilteredRows])
 
   const items = useMemo(() => {
     const items: Array<PropsUITableRow | null> = new Array(pageSize).fill(null)
@@ -112,7 +115,8 @@ export const Table = ({
     )
   }
 
-  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element {
+  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element | null {
+    if (item == null && i >= unfilteredRows) return null
     if (item == null) {
       return (
         <tr key={`{empty ${i}`} className='border-b-2 border-grey4 '>
@@ -127,7 +131,7 @@ export const Table = ({
         <td key='select'>
           <CheckBox
             id={item.id}
-            size='w-7 h-7'
+            size='w-6 h-6'
             selected={selected.has(item.id)}
             onSelect={() => toggleSelected(item.id)}
           />
@@ -162,63 +166,62 @@ export const Table = ({
   return (
     <div
       ref={ref}
-      className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden '
+      className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden text-sm md:text-base'
     >
-      <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
-        <div className='p-3 pt-1 pb-2 max-w-full overflow-x-scroll'>
-          <table className='table-fixed min-w-full'>
-            <thead className=''>
-              <tr className='border-b-2 border-grey4 border-solid'>
-                <td className='w-8'>
-                  <CheckBox
-                    id='selectAll'
-                    size='w-7 h-7'
-                    selected={
-                      table.body.rows.length > 0 && selected.size === table.body.rows.length
-                    }
-                    onSelect={toggleSelectAll}
-                  />
-                </td>
-                {columnNames.map(renderHeaderCell)}
-              </tr>
-            </thead>
-            <tbody>{items.map(renderRow)}</tbody>
-          </table>
-        </div>
-        <div className='px-3 pb-2 flex justify-between min-h-[3.5rem]'>
-          <div
-            className={`pt-2 pb-4 ${
-              selected.size > 0 || table.deletedRowCount > 0 ? '' : 'invisible'
-            }`}
-          >
-            {selected.size > 0
-              ? (
-                <IconButton
-                  icon={DeleteSvg}
-                  label={`${text.delete} ${selectedLabel}`}
-                  color='text-delete'
-                  onClick={() => handleDelete?.([...selected])}
-                />
-                )
-              : (
-                <IconButton
-                  icon={UndoSvg}
-                  label={text.undo}
-                  color='text-primary'
-                  onClick={() => handleUndo?.()}
-                />
-                )}
+      <div ref={innerRef} className={`h-min ${unfilteredRows === 0 ? 'invisible' : ''}`}>
+        <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
+          <div className='p-3 pt-1 pb-2 max-w-full overflow-x-scroll'>
+            <table className='table-fixed min-w-full '>
+              <thead className=''>
+                <tr className='border-b-2 border-grey4 border-solid'>
+                  <td className='w-8'>
+                    <CheckBox
+                      id='selectAll'
+                      size='w-6 h-6'
+                      selected={
+                        table.body.rows.length > 0 && selected.size === table.body.rows.length
+                      }
+                      onSelect={toggleSelectAll}
+                    />
+                  </td>
+                  {columnNames.map(renderHeaderCell)}
+                </tr>
+              </thead>
+              <tbody>{items.map(renderRow)}</tbody>
+            </table>
           </div>
-          <Pagination page={page} setPage={setPage} nPages={nPages} />
+          <div className='px-3 pb-1 flex justify-between min-h-[2.5rem]'>
+            <div className='pt-2 pb-2'>
+              {selected.size > 0 || table.deletedRowCount === 0
+                ? (
+                  <IconButton
+                    icon={DeleteSvg}
+                    label={`${text.delete} ${selected.size > 0 ? selectedLabel : ''}`}
+                    color='text-delete'
+                    disabled={selected.size === 0}
+                    onClick={() => handleDelete?.([...selected])}
+                  />
+                  )
+                : (
+                  <IconButton
+                    icon={UndoSvg}
+                    label={text.undo}
+                    color='text-primary'
+                    onClick={() => handleUndo?.()}
+                  />
+                  )}
+            </div>
+            <Pagination page={page} setPage={setPage} nPages={nPages} />
+          </div>
         </div>
-      </div>
-      <div
-        className={`${
-          tooltip.show ? '' : 'invisible'
-        } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
-        style={{ left: tooltip.x, top: tooltip.y } as any}
-      >
-        {tooltip.content}
+        <div
+          className={`${
+            tooltip.show ? '' : 'invisible'
+          } fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
+          style={{ left: tooltip.x, top: tooltip.y } as any}
+        >
+          {tooltip.content}
+        </div>
       </div>
     </div>
   )
@@ -323,15 +326,19 @@ function IconButton (props: {
   label: string
   onClick: () => void
   color: string
+  disabled?: boolean
   hidden?: boolean
 }): JSX.Element | null {
   if (props.hidden ?? false) return null
+  const disabled = props.disabled ?? false
   return (
     <div
-      className={`flex items-center gap-2 cursor-pointer ${props.color} animate-fadeIn text-button `}
-      onClick={props.onClick}
+      className={`flex items-center gap-2 cursor-pointer  ${
+        props.color
+      } animate-fadeIn md:text-button ${disabled ? 'opacity-50' : ''}`}
+      onClick={() => !disabled && props.onClick()}
     >
-      <img src={props.icon} className='w-9 h-9 -translate-x-[3px]' />
+      <img src={props.icon} className='w-7 h-7 ml-1 md:w-9 md:h-9 md:ml-0 -translate-x-[3px]' />
       {props.label}
     </div>
   )

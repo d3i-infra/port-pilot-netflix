@@ -2,14 +2,16 @@ import { useMemo } from 'react'
 import TextBundle from '../../../../text_bundle'
 import { Translator } from '../../../../translator'
 import { TableWithContext } from '../../../../types/elements'
+import UndoSvg from '../../../../../assets/images/undo.svg'
 
 interface Props {
   table: TableWithContext
   searchedTable: TableWithContext
+  handleUndo: () => void
   locale: string
 }
 
-export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element => {
+export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): JSX.Element => {
   const text = useMemo(() => getTranslations(locale), [locale])
 
   const deleted = table.deletedRowCount
@@ -22,21 +24,35 @@ export const TableItems = ({ table, searchedTable, locale }: Props): JSX.Element
   const searchLabel = searched.toLocaleString(locale, { useGrouping: true })
   const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
+  function rowsLabel (): string {
+    if (n === 0) return text.noData
+    if (searched < n) return searchLabel + ' / ' + nLabel + ' ' + text.rows
+    return nLabel + ' ' + text.rows
+  }
+
   return (
     <div className='flex  min-w-[200px] gap-1'>
-      <div className='flex items-center  '>{tableIcon}</div>
+      <div className='flex items-center'>{tableIcon}</div>
       <div
         key={`${totalLabel}_${deleted}`}
-        className='flex flex-wrap items-center pl-2  gap-x-2 animate-fadeIn text-lg text-title6 font-label '
+        className='flex flex-wrap items-center px-2  gap-x-2 animate-fadeIn text-title7 md:text-title6 font-label'
       >
-        <div>
+        <div className={n > 0 ? '' : 'hidden'}>
           {table.head.cells.length} {text.columns},
         </div>
         <div key={totalLabel} className='animate-fadeIn'>
-          {searched < n ? searchLabel + ' / ' + nLabel : nLabel} {text.rows}
+          {rowsLabel()}
+          {deleted > 0 ? ',' : ''}
         </div>
 
-        <div className={`flex text-grey2 ${deleted > 0 ? '' : 'hidden'}`}>({deletedLabel})</div>
+        <div className={`flex text-grey2 ${deleted > 0 ? '' : 'hidden'}`}>
+          {deletedLabel}
+          <img
+            src={UndoSvg}
+            className='w-5 h-5 -translate-y-[2px] md:-translate-y-0 -translate-x-[3px] ml-2'
+            onClick={handleUndo}
+          />
+        </div>
       </div>
     </div>
   )
@@ -66,5 +82,6 @@ function getTranslations (locale: string): Record<string, string> {
 const translations = {
   columns: new TextBundle().add('en', 'columns').add('nl', 'kolommen'),
   rows: new TextBundle().add('en', 'rows').add('nl', 'rijen'),
+  noData: new TextBundle().add('en', 'no data').add('nl', 'geen data'),
   deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd')
 }

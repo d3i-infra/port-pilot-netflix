@@ -18,7 +18,8 @@ export interface AggregationGroup {
   label?: string
   column: string
   dateFormat?: DateFormat
-  tokenize?: boolean
+  range?: [number, number]
+  levels?: string[]
 }
 
 export interface AggregationValue {
@@ -44,7 +45,9 @@ export interface TextVisualization extends VisualizationProps {
   type: 'wordcloud'
   textColumn: string
   valueColumn?: string
+  valueAggregation?: 'sum' | 'mean'
   tokenize?: boolean
+  extract?: 'url_domain'
 }
 export interface ScoredTerm {
   text: string
@@ -64,6 +67,7 @@ export interface AxisSettings {
 }
 
 export type TickerFormat = 'percent' | 'default'
+export type XType = 'string' | 'date'
 
 export interface ChartVisualizationData {
   type: 'line' | 'bar' | 'area'
@@ -86,5 +90,4 @@ export type DateFormat =
   | 'hour'
   | 'month_cycle'
   | 'weekday_cycle'
-  | 'day_cycle'
   | 'hour_cycle'

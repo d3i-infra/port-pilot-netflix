@@ -15,7 +15,8 @@ import {
   BarChart,
   Bar,
   AreaChart,
-  Area
+  Area,
+  Label
 } from 'recharts'
 
 interface Props {
@@ -23,11 +24,14 @@ interface Props {
 }
 
 export default function RechartsGraph ({ visualizationData }: Props): JSX.Element | null {
+  const xLab = visualizationData.xKey.label
+
   function tooltip (): JSX.Element {
     return (
       <Tooltip
         allowEscapeViewBox={{ x: false, y: false }}
         labelStyle={{ marginBottom: '0.5rem' }}
+        trigger='hover'
         contentStyle={{
           fontSize: '0.8rem',
           lineHeight: '0.8rem',
@@ -50,7 +54,13 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
 
     return (
       <>
-        <XAxis dataKey={visualizationData.xKey.label} minTickGap={minTickGap} />
+        <XAxis dataKey={visualizationData.xKey.label} minTickGap={minTickGap} height={45}>
+          {xLab != null
+            ? (
+              <Label value={xLab} offset={-15} position='bottom' className='relative z-50' />
+              )
+            : null}
+        </XAxis>
         <YAxis yAxisId='left' tickFormatter={tickFormatter} />
         {secondary && <YAxis yAxisId='right' orientation='right' tickFormatter={tickFormatter2} />}
       </>
@@ -98,7 +108,7 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
 
   if (visualizationData.type === 'bar') {
     chart = (
-      <BarChart data={visualizationData.data}>
+      <BarChart data={visualizationData.data} className=''>
         {axes(0)}
         {tooltip()}
         {legend()}
@@ -140,7 +150,7 @@ export default function RechartsGraph ({ visualizationData }: Props): JSX.Elemen
 
   if (chart == null) return null
   return (
-    <ResponsiveContainer width='100%' height='100%'>
+    <ResponsiveContainer width='100%' height='100%' className='pb-7'>
       {chart}
     </ResponsiveContainer>
   )

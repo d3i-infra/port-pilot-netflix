@@ -88,10 +88,12 @@ class PropsUIChartGroup:
         label: Optionally, a label to display in the visualization (default is the column name)
         dateFormat: if given, transforms a data column to the specified date format for aggregation
     """
+
     column: str
     label: Optional[str] = None
     dateFormat: Optional[str] = None
-    tokenize: Optional[bool] = False
+    range: Optional[list[int]] = None
+    levels: Optional[list[str]] = None
 
     def toDict(self):
         dict = {}
@@ -99,7 +101,11 @@ class PropsUIChartGroup:
         dict["column"] = self.column
         dict["label"] = self.label
         dict["dateFormat"] = self.dateFormat
+        dict["range"] = self.range
+        dict["levels"] = self.levels
+
         return dict
+
 
 @dataclass
 class PropsUIChartValue:
@@ -111,6 +117,7 @@ class PropsUIChartValue:
         aggregate: function for aggregating the values
         addZeroes: if true, add zeroes for missing values
     """
+
     column: str
     label: Optional[str] = None
     aggregate: Optional[str] = "count"
@@ -125,6 +132,7 @@ class PropsUIChartValue:
         dict["addZeroes"] = self.addZeroes
         return dict
 
+
 @dataclass
 class PropsUIChartVisualization:
     """Data visualization
@@ -135,11 +143,12 @@ class PropsUIChartVisualization:
         group: grouping variable for aggregating the data
         values: list of values to aggregate
     """
+
     title: Translatable
     type: Literal["bar", "line", "area"]
     group: PropsUIChartGroup
     values: list[PropsUIChartValue]
-        
+
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIChartVisualization"
@@ -148,18 +157,19 @@ class PropsUIChartVisualization:
         dict["group"] = self.group.toDict()
         dict["values"] = [value.toDict() for value in self.values]
         return dict
-    
+
+
 @dataclass
 class PropsUITextVisualization:
-    """Word cloud visualization
+    """Word cloud visualization"""
 
-    """
     title: Translatable
     type: Literal["wordcloud"]
     text_column: str
     value_column: Optional[str] = None
+    value_aggregation: Literal["sum", "mean"] = "sum"
     tokenize: Optional[bool] = False
-        
+
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUITextVisualization"
@@ -167,26 +177,29 @@ class PropsUITextVisualization:
         dict["type"] = self.type
         dict["textColumn"] = self.text_column
         dict["valueColumn"] = self.value_column
+        dict["valueAggregation"] = self.value_aggregation
         dict["tokenize"] = self.tokenize
         return dict
 
 
 @dataclass
 class PropsUIPromptConsentFormTable:
-    """Table to be shown to the participant prior to donation 
+    """Table to be shown to the participant prior to donation
 
     Attributes:
         id: a unique string to itentify the table after donation
         title: title of the table
         data_frame: table to be shown
-        editable: determines whether the table has an editable mode that can be toggled with a button
         visualizations: optional list of visualizations to be shown
     """
+
     id: str
     title: Translatable
     data_frame: pd.DataFrame
-    #editable: bool = True
-    visualizations: Optional[list[PropsUIChartVisualization | PropsUITextVisualization]] = None
+    description: Optional[Translatable] = None
+    visualizations: Optional[
+        list[PropsUIChartVisualization | PropsUITextVisualization]
+    ] = None
 
     def translate_visualizations(self):
         if self.visualizations is None:
@@ -199,7 +212,7 @@ class PropsUIPromptConsentFormTable:
         dict["id"] = self.id
         dict["title"] = self.title.toDict()
         dict["data_frame"] = self.data_frame.to_json()
-        #dict["editable"] = self.editable
+        dict["description"] = self.description.toDict() if self.description else None
         dict["visualizations"] = self.translate_visualizations()
         return dict
     

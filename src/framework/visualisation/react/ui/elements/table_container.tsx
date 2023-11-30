@@ -74,42 +74,60 @@ export const TableContainer = ({
     updateTable(id, newTable)
   }, [id, table])
 
+  const unfilteredRows = table.body.rows.length
+
   return (
     <div
       key={table.id}
-      className='p-4 flex flex-col gap-4 w-full overflow-hidden border border-[0.2rem] border-grey4 rounded-lg'
+      className='p-3 md:p-4 lg:p-6 flex flex-col gap-4 w-full overflow-hidden border-[0.2rem] border-grey4 rounded-lg'
     >
       <div className='flex flex-wrap '>
-        <div key='Title' className='flex justify-between w-full '>
-          <Title4 text={table.title} margin='mb-2' />
+        <div key='Title' className='flex sm:flex-row justify-between w-full gap-1 mb-2'>
+          <Title4 text={table.title} margin='' />
 
-          <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
+          {unfilteredRows > 0
+            ? (
+              <SearchBar placeholder={text.searchPlaceholder} search={search} onSearch={setSearch} />
+              )
+            : null}
+        </div>
+        <div
+          key='Description'
+          className='flex flex-col w-full mb-2 text-base md:text-lg font-body max-w-2xl'
+        >
+          <p>{table.description}</p>
         </div>
         <div
           key='TableSummary'
-          className='flex items-center justify-between w-full my-1 py-1 rounded '
+          className='flex items-center justify-between w-full mt-1 pt-1 rounded '
         >
-          <TableItems table={table} searchedTable={searchedTable} locale={locale} />
+          <TableItems
+            table={table}
+            searchedTable={searchedTable}
+            handleUndo={handleUndo}
+            locale={locale}
+          />
 
           <button
             key={show ? 'animate' : ''}
-            className=' flex end gap-3 animate-fadeIn'
+            className={`flex end gap-3 animate-fadeIn ${unfilteredRows === 0 ? 'hidden' : ''}`}
             onClick={() => setShow(!show)}
           >
-            <div key='zoomout' className='text-primary'>
+            <div key='zoomIcon' className='text-primary'>
               {show ? zoomOutIcon : zoomInIcon}
             </div>
-            <div key='zoomin' className='text-right'>
+            <div key='zoomText' className='text-right hidden md:block'>
               {show ? text.hideTable : text.showTable}
             </div>
           </button>
         </div>
-        <div key='Table' className='w-full '>
+        <div key='Table' className='w-full'>
           <div className=''>
             <Table
               show={show}
               table={searchedTable}
               search={search}
+              unfilteredRows={unfilteredRows}
               handleDelete={handleDelete}
               handleUndo={handleUndo}
               locale={locale}
@@ -119,23 +137,19 @@ export const TableContainer = ({
         <div
           key='Visualizations'
           className={`pt-2 grid w-full gap-4 transition-all ${
-            tableVisualizations.length > 0 ? '' : 'hidden'
+            tableVisualizations.length > 0 && unfilteredRows > 0 ? '' : 'hidden'
           }`}
         >
           {tableVisualizations.map((vs: VisualizationType, i: number) => {
             return (
-              <div
-                key={`${table.id}_${i}`}
-                className='p-3 bg-grey6 rounded-md border border-[0.2rem] border-grey4 w-full overflow-auto'
-              >
-                <Figure
-                  table={searchedTable}
-                  visualization={vs}
-                  locale={locale}
-                  handleDelete={handleDelete}
-                  handleUndo={handleUndo}
-                />
-              </div>
+              <Figure
+                key={table.id + '_' + String(i)}
+                table={searchedTable}
+                visualization={vs}
+                locale={locale}
+                handleDelete={handleDelete}
+                handleUndo={handleUndo}
+              />
             )
           })}
         </div>

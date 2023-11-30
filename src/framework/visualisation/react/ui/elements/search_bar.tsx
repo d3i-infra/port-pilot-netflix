@@ -13,11 +13,12 @@ export const SearchBar = ({
   }
 
   return (
-    <form>
-      <div className='flex flex-row '>
+    <form className='max-w-[33%]'>
+      <div className='flex flex-row w-full'>
         <input
-          className={`text-grey1  font-body pl-3 pr-3 w-full border-2 border-solid border-grey3 
-          focus:outline-none focus:border-primary rounded-lg h-44px`}
+          className={`text-grey1 text-sm md:text-base font-body w-full
+          pl-3 pr-3 py-[1px] md:py-1 border-2 border-solid border-grey3 
+          focus:outline-none focus:border-primary rounded-full `}
           placeholder={placeholder ?? ''}
           // name="query"  // autcomplete popup is annoying
           type='search'

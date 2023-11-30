@@ -39,7 +39,7 @@ export const Figure = ({
   handleUndo
 }: Props): JSX.Element => {
   const [visualizationData, status] = useVisualizationData(table, visualization)
-
+  console.log('whattt')
   const { title } = useMemo(() => {
     const title = Translator.translate(visualization.title, locale)
     return { title }
@@ -47,7 +47,7 @@ export const Figure = ({
 
   const { errorMsg, noDataMsg } = useMemo(() => prepareCopy(locale), [locale])
 
-  if ((visualizationData == null) && status === 'loading') {
+  if (visualizationData == null && status === 'loading') {
     return (
       <div className='w-12 h-12'>
         <Lottie animationData={spinnerDark} loop />
@@ -55,19 +55,28 @@ export const Figure = ({
     )
   }
 
-  if (status === 'error') { return <div className='flex justify-center items-center text-error'>{errorMsg}</div> }
+  if (status === 'error') {
+    return <div className='flex justify-center items-center text-error'>{errorMsg}</div>
+  }
 
   const visualizationHeightTruthy = Boolean(visualization.height)
-  const minHeight = visualizationHeightTruthy ? `${visualization.height ?? ''} px` : '20rem'
+  const minHeight = visualizationHeightTruthy ? `${visualization.height ?? ''} px` : '15rem'
 
   return (
-    <div className='flex flex-col overflow-hidden'>
-      <Title6 text={title} margin='mt-2 mb-4' />
-      <div
-        className='relative z-50 flex max-w-full'
-        style={{ flex: `1 1 ${minHeight}`, minHeight }}
-      >
-        <RenderVisualization visualizationData={visualizationData} fallbackMessage={noDataMsg} />
+    <div className='max-w overflow-hidden  bg-grey6 rounded-md border border-[0.2rem] border-grey4'>
+      <Title6 text={title} margin='p-3' />
+      <div key={table.id} className=' w-full overflow-auto'>
+        <div className='flex flex-col '>
+          <div
+            className='relative z-50 flex w-full pr-1  min-w-[500px]'
+            style={{ flex: `1 1 ${minHeight}`, minHeight }}
+          >
+            <RenderVisualization
+              visualizationData={visualizationData}
+              fallbackMessage={noDataMsg}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -95,8 +104,7 @@ const RenderVisualization = memo(
     }
 
     if (visualizationData.type === 'wordcloud') {
-      const textVisualizationData: TextVisualizationData =
-        visualizationData
+      const textVisualizationData: TextVisualizationData = visualizationData
       if (textVisualizationData.topTerms.length === 0) return fallback
       return <VisxWordcloud visualizationData={textVisualizationData} />
     }
