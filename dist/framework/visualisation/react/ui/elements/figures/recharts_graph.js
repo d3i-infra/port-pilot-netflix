@@ -1,8 +1,9 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, AreaChart, Area } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, AreaChart, Area, Label } from 'recharts';
 export default function RechartsGraph({ visualizationData }) {
+    const xLab = visualizationData.xKey.label;
     function tooltip() {
-        return (_jsx(Tooltip, { allowEscapeViewBox: { x: false, y: false }, labelStyle: { marginBottom: '0.5rem' }, contentStyle: {
+        return (_jsx(Tooltip, { allowEscapeViewBox: { x: false, y: false }, labelStyle: { marginBottom: '0.5rem' }, trigger: 'hover', contentStyle: {
                 fontSize: '0.8rem',
                 lineHeight: '0.8rem',
                 background: '#fff8',
@@ -16,7 +17,9 @@ export default function RechartsGraph({ visualizationData }) {
         const secondary = Object.values(visualizationData.yKeys).findIndex((yKey) => yKey.secondAxis) !==
             -1;
         const { tickFormatter, tickFormatter2 } = getTickFormatters(Object.values(visualizationData.yKeys));
-        return (_jsxs(_Fragment, { children: [_jsx(XAxis, { dataKey: visualizationData.xKey.label, minTickGap: minTickGap }), _jsx(YAxis, { yAxisId: 'left', tickFormatter: tickFormatter }), secondary && _jsx(YAxis, { yAxisId: 'right', orientation: 'right', tickFormatter: tickFormatter2 })] }));
+        return (_jsxs(_Fragment, { children: [_jsx(XAxis, Object.assign({ dataKey: visualizationData.xKey.label, minTickGap: minTickGap, height: 45 }, { children: xLab != null
+                        ? (_jsx(Label, { value: xLab, offset: -15, position: 'bottom', className: 'relative z-50' }))
+                        : null })), _jsx(YAxis, { yAxisId: 'left', tickFormatter: tickFormatter }), secondary && _jsx(YAxis, { yAxisId: 'right', orientation: 'right', tickFormatter: tickFormatter2 })] }));
     }
     function legend() {
         return (_jsx(Legend, { margin: { left: 10 }, align: 'right', verticalAlign: 'top', iconType: 'plainline', wrapperStyle: { fontSize: '0.8rem' } }));
@@ -30,7 +33,7 @@ export default function RechartsGraph({ visualizationData }) {
                 })] })));
     }
     if (visualizationData.type === 'bar') {
-        chart = (_jsxs(BarChart, Object.assign({ data: visualizationData.data }, { children: [axes(0), tooltip(), legend(), Object.values(visualizationData.yKeys).map((yKey, i) => {
+        chart = (_jsxs(BarChart, Object.assign({ data: visualizationData.data, className: '' }, { children: [axes(0), tooltip(), legend(), Object.values(visualizationData.yKeys).map((yKey, i) => {
                     var _a;
                     const { color } = getLineStyle(i);
                     return (_jsx(Bar, { yAxisId: ((_a = yKey.secondAxis) !== null && _a !== void 0 ? _a : false) ? 'right' : 'left', dataKey: yKey.label, fill: color }, yKey.label));
@@ -45,7 +48,7 @@ export default function RechartsGraph({ visualizationData }) {
     }
     if (chart == null)
         return null;
-    return (_jsx(ResponsiveContainer, Object.assign({ width: '100%', height: '100%' }, { children: chart })));
+    return (_jsx(ResponsiveContainer, Object.assign({ width: '100%', height: '100%', className: 'pb-7' }, { children: chart })));
 }
 function getLineStyle(index) {
     const COLORS = ['#4272EF', '#FF5E5E', '#FFCF60', '#1E3FCC', '#CC3F3F', '#CC9F3F'];

@@ -7,6 +7,7 @@ function VisxWordcloud({ visualizationData }) {
     const fontRange = [12, 60];
     const colors = ['#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60'];
     const nWords = 100;
+    console.log(visualizationData);
     const words = useMemo(() => {
         return visualizationData.topTerms.slice(0, nWords);
     }, [visualizationData, nWords]);

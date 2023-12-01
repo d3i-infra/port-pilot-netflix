@@ -11,20 +11,21 @@ import VisxWordcloud from './figures/visx_wordcloud';
 export const Figure = ({ table, visualization, locale, handleDelete, handleUndo }) => {
     var _a;
     const [visualizationData, status] = useVisualizationData(table, visualization);
+    console.log('whattt');
     const { title } = useMemo(() => {
         const title = Translator.translate(visualization.title, locale);
         return { title };
     }, [visualization]);
     const { errorMsg, noDataMsg } = useMemo(() => prepareCopy(locale), [locale]);
-    if ((visualizationData == null) && status === 'loading') {
+    if (visualizationData == null && status === 'loading') {
         return (_jsx("div", Object.assign({ className: 'w-12 h-12' }, { children: _jsx(Lottie, { animationData: spinnerDark, loop: true }) })));
     }
     if (status === 'error') {
         return _jsx("div", Object.assign({ className: 'flex justify-center items-center text-error' }, { children: errorMsg }));
     }
     const visualizationHeightTruthy = Boolean(visualization.height);
-    const minHeight = visualizationHeightTruthy ? `${(_a = visualization.height) !== null && _a !== void 0 ? _a : ''} px` : '20rem';
-    return (_jsxs("div", Object.assign({ className: 'flex flex-col overflow-hidden' }, { children: [_jsx(Title6, { text: title, margin: 'mt-2 mb-4' }), _jsx("div", Object.assign({ className: 'relative z-50 flex max-w-full', style: { flex: `1 1 ${minHeight}`, minHeight } }, { children: _jsx(RenderVisualization, { visualizationData: visualizationData, fallbackMessage: noDataMsg }) }))] })));
+    const minHeight = visualizationHeightTruthy ? `${(_a = visualization.height) !== null && _a !== void 0 ? _a : ''} px` : '15rem';
+    return (_jsxs("div", Object.assign({ className: 'max-w overflow-hidden  bg-grey6 rounded-md border border-[0.2rem] border-grey4' }, { children: [_jsx(Title6, { text: title, margin: 'p-3' }), _jsx("div", Object.assign({ className: ' w-full overflow-auto' }, { children: _jsx("div", Object.assign({ className: 'flex flex-col ' }, { children: _jsx("div", Object.assign({ className: 'relative z-50 flex w-full pr-1  min-w-[500px]', style: { flex: `1 1 ${minHeight}`, minHeight } }, { children: _jsx(RenderVisualization, { visualizationData: visualizationData, fallbackMessage: noDataMsg }) })) })) }), table.id)] })));
 };
 const RenderVisualization = memo(({ visualizationData, fallbackMessage }) => {
     if (visualizationData == null)

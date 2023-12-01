@@ -12,7 +12,8 @@ export interface AggregationGroup {
     label?: string;
     column: string;
     dateFormat?: DateFormat;
-    tokenize?: boolean;
+    range?: [number, number];
+    levels?: string[];
 }
 export interface AggregationValue {
     label?: string;
@@ -33,7 +34,9 @@ export interface TextVisualization extends VisualizationProps {
     type: 'wordcloud';
     textColumn: string;
     valueColumn?: string;
+    valueAggregation?: 'sum' | 'mean';
     tokenize?: boolean;
+    extract?: 'url_domain';
 }
 export interface ScoredTerm {
     text: string;
@@ -48,6 +51,7 @@ export interface AxisSettings {
     tickerFormat?: TickerFormat;
 }
 export type TickerFormat = 'percent' | 'default';
+export type XType = 'string' | 'date';
 export interface ChartVisualizationData {
     type: 'line' | 'bar' | 'area';
     data: Array<Record<string, any>>;
@@ -59,4 +63,4 @@ export interface TextVisualizationData {
     topTerms: ScoredTerm[];
 }
 export type VisualizationData = ChartVisualizationData | TextVisualizationData;
-export type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'day_cycle' | 'hour_cycle';
+export type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'hour_cycle';
