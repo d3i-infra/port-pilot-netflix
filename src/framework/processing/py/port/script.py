@@ -9,6 +9,7 @@ import port.api.props as props
 import port.helpers as helpers
 import port.unzipddp as unzipddp
 import port.netflix as netflix
+import port.experiment as experiment
 
 
 LOG_STREAM = io.StringIO()
@@ -60,7 +61,6 @@ ADDITIONAL_COMMENTS = props.Translatable({
     "nl": "Open vraag?"
 })
 
-
 #Not donate questions
 NO_DONATION_REASONS = props.Translatable({
     "en": "What is/are the reason(s) that you decided not to donate your data?",
@@ -81,6 +81,7 @@ def process(session_id):
 
     platform_name = "Netflix"
     table_list = None
+    group_label = "A"
 
     while True:
         LOGGER.info("Prompt for file for %s", platform_name)
@@ -105,6 +106,17 @@ def process(session_id):
 
                 # Extract the user
                 users = extract_users(file_result.value)
+
+                # Experiment logic: you can flip A and B switches to see both conditions with the same DDP
+                group_label = experiment.assign_experiment_group("".join(users))
+                if group_label == "A":
+                    extract_netflix = extract_netflix_A
+                if group_label == "B":
+                    extract_netflix = extract_netflix_B
+                else:
+                    group_label = "A"
+                    extract_netflix = extract_netflix_A
+
                 if len(users) == 1:
                     selected_user = users[0]
                     extraction_result = extract_netflix(file_result.value, selected_user)
@@ -158,37 +170,37 @@ def process(session_id):
 
         if table_list is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
-            yield donate_logs(f"{session_id}-tracking")
+            yield donate_logs(f"{group_label}-{session_id}-tracking")
             prompt = create_consent_form(table_list)
             consent_result = yield render_donation_page(platform_name, prompt, progress)
 
             # Data was donated
             if consent_result.__type__ == "PayloadJSON":
                 LOGGER.info("Data donated; %s", platform_name)
-                yield donate(platform_name, consent_result.value)
-                yield donate_logs(f"{session_id}-tracking")
+                yield donate(f"{group_label}-{platform_name}", consent_result.value)
+                yield donate_logs(f"{group_label}-{session_id}-tracking")
 
                 progress += step_percentage
                 # render happy questionnaire
                 render_questionnaire_results = yield render_questionnaire(progress)
 
                 if render_questionnaire_results.__type__ == "PayloadJSON":
-                    yield donate("questionnaire_results", render_questionnaire_results.value)
+                    yield donate(f"{group_label}-questionnaire-donation", render_questionnaire_results.value)
                 else:
                     LOGGER.info("Skipped questionnaire: %s", platform_name)
-                    yield donate_logs(f"{session_id}-tracking")
+                    yield donate_logs(f"{group_label}-{session_id}-tracking")
 
             # Data was not donated
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
-                yield donate_logs(f"{session_id}-tracking")
+                yield donate_logs(f"{group_label}-{session_id}-tracking")
 
                 progress += step_percentage
 
                 # render sad questionnaire
                 render_questionnaire_results = yield render_questionnaire_no_donation(progress)
                 if render_questionnaire_results.__type__ == "PayloadJSON":
-                    yield donate("questionnaire_results", render_questionnaire_results.value)
+                    yield donate(f"{group_label}-questionnaire-no-donation", render_questionnaire_results.value)
                 else:
                     LOGGER.info("Skipped questionnaire: %s", platform_name)
                     yield donate_logs(f"{session_id}-tracking")
@@ -248,7 +260,8 @@ def prompt_radio_menu_select_username(users, progress):
 ##################################################################
 # Extraction function
 
-def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIPromptConsentFormTable]:
+# The A conditional group gets the visualizations 
+def extract_netflix_A(netflix_zip: str, selected_user: str) -> list[props.PropsUIPromptConsentFormTable]:
     """
     Main data extraction function
     Assemble all extraction logic here, results are stored in a dict
@@ -338,6 +351,79 @@ def extract_netflix(netflix_zip: str, selected_user: str) -> list[props.PropsUIP
     return tables_to_render
 
 
+
+# The B group does not get the visualizations
+def extract_netflix_B(netflix_zip: str, selected_user: str) -> list[props.PropsUIPromptConsentFormTable]:
+    """
+    Main data extraction function
+    Assemble all extraction logic here, results are stored in a dict
+
+    COMMENT: does this also make sense as the place to formulate data visualizations?
+    """
+    tables_to_render = []
+    
+    # Extract the ratings
+    df = netflix.ratings_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
+        table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df)
+        tables_to_render.append(table)
+
+    # Extract the viewing activity
+    df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
+        table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df)
+        tables_to_render.append(table)
+    
+    # Extract the clickstream
+    df = netflix.clickstream_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix clickstream", "nl": "Netflix clickstream"})
+        table = props.PropsUIPromptConsentFormTable("netflix_clickstream", table_title, df) 
+        tables_to_render.append(table)
+
+    # Extract my list
+    df = netflix.my_list_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix bookmarks", "nl": "Netflix bookmarks"})
+        table = props.PropsUIPromptConsentFormTable("netflix_my_list", table_title, df) 
+        tables_to_render.append(table)
+
+    # Extract Indicated preferences
+    df = netflix.indicated_preferences_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix indicated preferences", "nl": "Netflix indicated preferences"})
+        table = props.PropsUIPromptConsentFormTable("netflix_indicated_preferences", table_title, df) 
+        tables_to_render.append(table)
+
+    # Extract playback related events
+    df = netflix.playback_related_events_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix playback related events", "nl": "Netflix playback related events"})
+        table = props.PropsUIPromptConsentFormTable("netflix_playback", table_title, df) 
+        tables_to_render.append(table)
+
+    # Extract search history
+    df = netflix.search_history_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix search history", "nl": "Netflix search history"})
+        table = props.PropsUIPromptConsentFormTable("netflix_search", table_title, df) 
+        tables_to_render.append(table)
+
+    # Extract messages sent by netflix
+    df = netflix.messages_sent_by_netflix_to_df(netflix_zip, selected_user)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Netflix messages", "nl": "Netflix messages"})
+        table = props.PropsUIPromptConsentFormTable("netflix_messages", table_title, df) 
+        tables_to_render.append(table)
+
+    return tables_to_render
+
+
+
+
+
 def extract_users(netflix_zip):
     """
     Reads viewing activity and extracts users from the first column
@@ -349,9 +435,10 @@ def extract_users(netflix_zip):
     return users
 
 
+##########################################################################################
+# Questionnaires
 
 def render_questionnaire(progress):
-
     questions = [
         props.PropsUIQuestionOpen(question=UNDERSTANDING, id=1),
         props.PropsUIQuestionMultipleChoice(question=INDENTIFY_CONSUMPTION, id=2, choices=IDENTIFY_CONSUMPTION_CHOICES),
@@ -366,6 +453,7 @@ def render_questionnaire(progress):
 
     page = props.PropsUIPageDonation("ASD", header, body, footer)
     return CommandUIRender(page)
+
 
 def render_questionnaire_no_donation(progress):
     questions = [
