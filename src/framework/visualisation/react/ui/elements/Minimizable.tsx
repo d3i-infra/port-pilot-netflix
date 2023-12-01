@@ -1,4 +1,5 @@
 import React, { ReactNode, useState } from 'react'
+import { zoomInIcon, zoomOutIcon } from './zoom_icons'
 
 interface Props {
   children: ReactNode
@@ -18,8 +19,8 @@ export const Minimizable = ({
   const containerStyle = isMinimized
     ? `${size} overflow-hidden animate-fadeIn`
     : fullSize ?? false
-      ? 'w-full'
-      : ''
+    ? 'w-full'
+    : ''
   const childStyle = isMinimized
     ? 'scale-50 origin-top-left z-10 p-5 w-[200%] '
     : 'transition-all duration-500'
@@ -29,9 +30,11 @@ export const Minimizable = ({
   const iconStyle = isMinimized ? 'rounded-tr-sm bg-primary' : 'rounded-sm mb-2 bg-primary'
 
   const minimizedTruthy = Boolean(minimized)
-  const child = minimizedTruthy
-    ? minimized
-    : (<div className={`relative  ${childStyle}`}>{minimizedTruthy ? minimized : children}</div>)
+  const child = minimizedTruthy ? (
+    minimized
+  ) : (
+    <div className={`relative  ${childStyle}`}>{minimizedTruthy ? minimized : children}</div>
+  )
 
   return (
     <div className={`overflow-auto relative ${containerStyle}`}>
@@ -49,39 +52,3 @@ export const Minimizable = ({
     </div>
   )
 }
-
-const zoomInIcon = (
-  <svg
-    className='h-6 w-6'
-    fill='none'
-    stroke='currentColor'
-    strokeWidth='2'
-    viewBox='0 0 24 24'
-    xmlns='http://www.w3.org/2000/svg'
-    aria-hidden='true'
-  >
-    <path
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6'
-    />
-  </svg>
-)
-
-const zoomOutIcon = (
-  <svg
-    className='h-6 w-6'
-    fill='none'
-    stroke='currentColor'
-    strokeWidth='2'
-    viewBox='0 0 24 24'
-    xmlns='http://www.w3.org/2000/svg'
-    aria-hidden='true'
-  >
-    <path
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      d='M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6'
-    />
-  </svg>
-)
