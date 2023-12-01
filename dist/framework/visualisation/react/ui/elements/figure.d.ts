@@ -1,8 +1,8 @@
 /// <reference types="react" />
 import { TableWithContext } from '../../../../types/elements';
-import { VisualizationType } from '../../../../types/visualizations';
+import { VisualizationType, VisualizationData } from '../../../../types/visualizations';
 import { ReactFactoryContext } from '../../factory';
-type Props = VisualizationProps & ReactFactoryContext;
+declare type Props = VisualizationProps & ReactFactoryContext;
 export interface VisualizationProps {
     table: TableWithContext;
     visualization: VisualizationType;
@@ -11,4 +11,9 @@ export interface VisualizationProps {
     handleUndo: () => void;
 }
 export declare const Figure: ({ table, visualization, locale, handleDelete, handleUndo }: Props) => JSX.Element;
+export declare const RenderVisualization: import("react").MemoExoticComponent<({ visualizationData, fallbackMessage, loading }: {
+    visualizationData: VisualizationData | undefined;
+    fallbackMessage: string;
+    loading?: boolean;
+}) => JSX.Element | null>;
 export {};

@@ -1,21 +1,16 @@
 {
   "compilerOptions": {
-      "jsx": "react-jsx",
-      "target": "es6",
-      "lib": [
-        "dom",
-        "dom.iterable",
-        "esnext"
-      ],      
-      "allowJs": true,      
-      "module": "esnext",
-      "moduleResolution": "node",
-      "esModuleInterop": true,
-      "resolveJsonModule": true,
-      "isolatedModules": true,
-      "outDir": "./dist"
+    "jsx": "react-jsx",
+    "target": "es6",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "outDir": "./dist"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/framework"]
 }

@@ -4,7 +4,7 @@ import Wordcloud from '@visx/wordcloud/lib/Wordcloud';
 import { ParentSize } from '@visx/responsive';
 import { useMemo } from 'react';
 function VisxWordcloud({ visualizationData }) {
-    const fontRange = [12, 60];
+    const fontRange = [12, 45];
     const colors = ['#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60'];
     const nWords = 100;
     console.log(visualizationData);

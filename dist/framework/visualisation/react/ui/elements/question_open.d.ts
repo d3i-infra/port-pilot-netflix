@@ -4,6 +4,6 @@ import { ReactFactoryContext } from '../../factory';
 interface parentSetter {
     parentSetter: (arg: any) => any;
 }
-type Props = PropsUIQuestionOpen & parentSetter & ReactFactoryContext;
+declare type Props = PropsUIQuestionOpen & parentSetter & ReactFactoryContext;
 export declare const OpenQuestion: (props: Props) => JSX.Element;
 export {};

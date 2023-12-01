@@ -49,7 +49,7 @@ export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props):
           {deletedLabel}
           <img
             src={UndoSvg}
-            className='w-5 h-5 -translate-y-[2px] md:-translate-y-0 -translate-x-[3px] ml-2'
+            className='w-5 h-5 -translate-y-[2px] md:-translate-y-0 -translate-x-[3px] ml-2 cursor-pointer'
             onClick={handleUndo}
           />
         </div>

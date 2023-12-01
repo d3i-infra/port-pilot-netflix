@@ -109,6 +109,7 @@ def process(session_id):
 
                 # Experiment logic: you can flip A and B switches to see both conditions with the same DDP
                 group_label = experiment.assign_experiment_group("".join(users))
+                
                 if group_label == "A":
                     extract_netflix = extract_netflix_A
                 if group_label == "B":

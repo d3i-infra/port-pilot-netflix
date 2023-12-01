@@ -8,7 +8,7 @@ interface Props {
   visualizationData: TextVisualizationData
 }
 
-function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
+function VisxWordcloud ({ visualizationData }: Props): JSX.Element | null {
   const fontRange = [12, 45]
   const colors = ['#1E3FCC', '#4272EF', '#CC9F3F', '#FFCF60']
   const nWords = 100
@@ -27,7 +27,7 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
           width={parent.width}
           rotate={0}
           padding={3}
-          spiral="rectangular"
+          spiral='rectangular'
           fontSize={(w) => w.importance * (fontRange[1] - fontRange[0]) + fontRange[0]}
           random={() => 0.5}
         >
@@ -38,7 +38,7 @@ function VisxWordcloud({ visualizationData }: Props): JSX.Element | null {
                   key={w.text}
                   fill={colors[Math.floor((i / cloudWords.length) * colors.length)]}
                   fontSize={w.size}
-                  textAnchor="middle"
+                  textAnchor='middle'
                   fontFamily={w.font}
                   transform={`translate(${w.x ?? 0}, ${w.y ?? 0}) rotate(${w.rotate ?? 0})`}
                 >

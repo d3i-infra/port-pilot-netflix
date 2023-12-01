@@ -1,9 +1,9 @@
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
 import { VisualizationType } from './visualizations';
-export type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
-export type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
-export type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
+export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
+export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
+export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
 export interface PropsUITextLabel {
@@ -217,7 +217,7 @@ export interface TableContext {
     deletedRows: string[][];
     visualizations?: VisualizationType[];
 }
-export type TableWithContext = TableContext & PropsUITable;
+export declare type TableWithContext = TableContext & PropsUITable;
 export interface Annotation {
     row_id: string;
     [key: string]: any;
@@ -230,7 +230,7 @@ export interface PropsUISearchBar {
     debounce?: number;
 }
 export declare function isPropsUISearchBar(arg: any): arg is PropsUISearchBar;
-export type Text = Translatable | string;
+export declare type Text = Translatable | string;
 export declare function isText(arg: any): arg is Text;
 export interface Translatable {
     translations: {

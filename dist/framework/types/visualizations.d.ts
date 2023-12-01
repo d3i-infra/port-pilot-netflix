@@ -3,7 +3,7 @@ export interface VisualizationProps {
     title: Text;
     height?: number;
 }
-export type AggregationFunction = 'count' | 'mean' | 'sum' | 'count_pct' | 'pct';
+export declare type AggregationFunction = 'count' | 'mean' | 'sum' | 'count_pct' | 'pct';
 export interface Axis {
     label?: string;
     column: string;
@@ -44,14 +44,14 @@ export interface ScoredTerm {
     importance: number;
     rowIds?: string[];
 }
-export type VisualizationType = ChartVisualization | TextVisualization;
+export declare type VisualizationType = ChartVisualization | TextVisualization;
 export interface AxisSettings {
     label: string;
     secondAxis?: boolean;
     tickerFormat?: TickerFormat;
 }
-export type TickerFormat = 'percent' | 'default';
-export type XType = 'string' | 'date';
+export declare type TickerFormat = 'percent' | 'default';
+export declare type XType = 'string' | 'date';
 export interface ChartVisualizationData {
     type: 'line' | 'bar' | 'area';
     data: Array<Record<string, any>>;
@@ -62,5 +62,5 @@ export interface TextVisualizationData {
     type: 'wordcloud';
     topTerms: ScoredTerm[];
 }
-export type VisualizationData = ChartVisualizationData | TextVisualizationData;
-export type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'hour_cycle';
+export declare type VisualizationData = ChartVisualizationData | TextVisualizationData;
+export declare type DateFormat = 'auto' | 'year' | 'quarter' | 'month' | 'day' | 'hour' | 'month_cycle' | 'weekday_cycle' | 'hour_cycle';

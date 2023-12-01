@@ -4,6 +4,6 @@ import { ReactFactoryContext } from '../../factory';
 interface parentSetter {
     parentSetter: (arg: any) => any;
 }
-type Props = PropsUIQuestionMultipleChoiceCheckbox & parentSetter & ReactFactoryContext;
+declare type Props = PropsUIQuestionMultipleChoiceCheckbox & parentSetter & ReactFactoryContext;
 export declare const MultipleChoiceQuestionCheckbox: (props: Props) => JSX.Element;
 export {};
