@@ -35,36 +35,36 @@ TABLE_TITLES = {
 # Questionnaire questions
 UNDERSTANDING = props.Translatable({
     "en": "How would you describe the information that you shared with Utrecht University researchers?",
-    "nl": "Open vraag?"
+    "nl": "Hoe zou je de gegevens omschrijven die jij hebt gedeeld met onderzoekers van Universiteit Utrecht?"
 })
 
-INDENTIFY_CONSUMPTION = props.Translatable({"en": "In case you looked at the data presented on this page, did you recognise your Netflix watching patterns?", "nl": "asd"})
+INDENTIFY_CONSUMPTION = props.Translatable({"en": "In case you looked at the data presented on this page, did you recognise your Netflix watching patterns?", "nl": "Als je naar je data gekeken hebt, in hoeverre herken je je eigen kijkgedrag?"})
 IDENTIFY_CONSUMPTION_CHOICES = [
-    props.Translatable({"en": "I recognized my Netflix watching patterns", "nl": "asd"}),
-    props.Translatable({"en": "I recognized my Netflix watching patterns and patters of those I share my account with", "nl": "asd"}),
-    props.Translatable({"en": "I recognized mostly the watching patterns of those I share my account with", "nl": "asd"}),
-    props.Translatable({"en": "I did not look at my data ", "nl": "asd"}),
-    props.Translatable({"en": "Other", "nl": "asd"})
+    props.Translatable({"en": "I recognized my Netflix watching patterns", "nl": "Ik herkende mijn Netflix kijkgedrag"}),
+    props.Translatable({"en": "I recognized my Netflix watching patterns and patters of those I share my account with", "nl": "Ik herkende mijn eigen Netflix kijkgedrag en die van anderen met wie ik mijn account deel"}),
+    props.Translatable({"en": "I recognized mostly the watching patterns of those I share my account with", "nl": "Ik herkende vooral het kijkgedrag van anderen met wie ik mijn account deel"}),
+    props.Translatable({"en": "I did not look at my data ", "nl": "Ik heb niet naar mijn gegevens gekeken"}),
+    props.Translatable({"en": "Other", "nl": "Anders"})
 ]
 
-ENJOYMENT = props.Translatable({"en": "In case you looked at the data presented on this page, how interesting did you find looking at your data?", "nl": "asd"})
+ENJOYMENT = props.Translatable({"en": "In case you looked at the data presented on this page, how interesting did you find looking at your data?", "nl": "Als je naar je data hebt gekeken, hoe interessant vond je het om daar naar te kijken?"})
 ENJOYMENT_CHOICES = [
-    props.Translatable({"en": "not at all interesting", "nl": "asd"}),
-    props.Translatable({"en": "somewhat uninteresting", "nl": "asd"}),
-    props.Translatable({"en": "neither interesting nor uninteresting", "nl": "asd"}),
-    props.Translatable({"en": "somewhat interesting", "nl": "asd"}),
-    props.Translatable({"en": "very interesting", "nl": "asd"})
+    props.Translatable({"en": "not at all interesting", "nl": "Helemaal niet interessant"}),
+    props.Translatable({"en": "somewhat uninteresting", "nl": "Een beetje oninteressant"}),
+    props.Translatable({"en": "neither interesting nor uninteresting", "nl": "Niet interessant, niet oninteressant"}),
+    props.Translatable({"en": "somewhat interesting", "nl": "Een beetje interessant"}),
+    props.Translatable({"en": "very interesting", "nl": "Erg interessant"})
 ]
 
 ADDITIONAL_COMMENTS = props.Translatable({
     "en": "Do you have any additional comments about the donation? Please add them here.",
-    "nl": "Open vraag?"
+    "nl": "Heb je nog andere opmerkingen? Laat die hier achter."
 })
 
 #Not donate questions
 NO_DONATION_REASONS = props.Translatable({
     "en": "What is/are the reason(s) that you decided not to donate your data?",
-    "nl": "Open vraag?"
+    "nl": "Wat is de reden dat je er voor gekozen hebt je data niet te doneren?"
 })
 
 
@@ -478,8 +478,8 @@ def render_questionnaire(progress):
         props.PropsUIQuestionOpen(question=ADDITIONAL_COMMENTS, id=4),
     ]
 
-    description = props.Translatable({"en": "Lorem ipsum dolor sit amet", "nl": "Lorem ipsum"})
-    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
+    description = props.Translatable({"en": "Below you can find a couple of questions about the data donation process", "nl": "Hieronder vind u een paar vragen over het data donatie process"})
+    header = props.PropsUIHeader(props.Translatable({"en": "Questionnaire", "nl": "Vragenlijst"}))
     body = props.PropsUIPromptQuestionnaire(questions=questions, description=description)
     footer = props.PropsUIFooter(progress)
 
@@ -496,8 +496,8 @@ def render_questionnaire_no_donation(progress):
         props.PropsUIQuestionOpen(question=ADDITIONAL_COMMENTS, id=4),
     ]
 
-    description = props.Translatable({"en": "Lorem ipsum dolor sit amet", "nl": "Lorem ipsum"})
-    header = props.PropsUIHeader(props.Translatable({"en": "ASD", "nl": "ASD"}))
+    description = props.Translatable({"en": "Below you can find a couple of questions about the data donation process", "nl": "Hieronder vind u een paar vragen over het data donatie process"})
+    header = props.PropsUIHeader(props.Translatable({"en": "Questionnaire", "nl": "Vragenlijst"}))
     body = props.PropsUIPromptQuestionnaire(questions=questions, description=description)
     footer = props.PropsUIFooter(progress)
 
