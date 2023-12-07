@@ -110,9 +110,9 @@ def process(session_id):
                 # Experiment logic: you can flip A and B switches to see both conditions with the same DDP
                 group_label = experiment.assign_experiment_group("".join(users))
                 
-                if group_label == "A":
-                    extract_netflix = extract_netflix_A
                 if group_label == "B":
+                    extract_netflix = extract_netflix_A
+                if group_label == "A":
                     extract_netflix = extract_netflix_B
                 else:
                     group_label = "A"
@@ -245,9 +245,9 @@ def prompt_radio_menu_select_username(users, progress):
     Prompt selection menu to select which user you are
     """
 
-    title = props.Translatable({ "en": "Select", "nl": "Select" })
-    description = props.Translatable({ "en": "Please select your username", "nl": "Selecteer uw gebruikersnaam" })
-    header = props.PropsUIHeader(props.Translatable({"en": "Select", "nl": "Select"}))
+    title = props.Translatable({ "en": "Select your Netflix profile name", "nl": "Kies jouw Netflix profielnaam" })
+    description = props.Translatable({ "en": "", "nl": "" })
+    header = props.PropsUIHeader(props.Translatable({"en": "", "nl": ""}))
 
     radio_items = [{"id": i, "value": username} for i, username in enumerate(users)]
     body = props.PropsUIPromptRadioInput(title, description, radio_items)
@@ -274,13 +274,16 @@ def extract_netflix_A(netflix_zip: str, selected_user: str) -> list[props.PropsU
     # Extract the ratings
     df = netflix.ratings_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix ratings", "nl": "Netflix ratings"})
-        table_description = props.Translatable({"en": "We can add a short description here", "nl": "Hier kunnen we een korte beschrijving toevoegen"})
+        table_title = props.Translatable({"en": "Your ratings", "nl": "Jouw beoordelingen"})
+        table_description = props.Translatable({
+            "nl": "Deze tabel bevat jouw beoordelingen op Netflix. De word cloud laat zien welke content u duimpjes omhoog heeft gegeven", 
+            "en": "This table contains your ratings on Netflix. The word cloud shows which content you gave a thumbs up"
+        })
         wordcloud = props.PropsUITextVisualization(
-            title=props.Translatable({"en": "Highest ratings", "nl": "Hoogste ratings"}),
+            title=props.Translatable({"en": "Highest ratings", "nl": "Hoogste aantal duimpjes"}),
             type="wordcloud",
-            text_column="Title Name",
-            value_column="Thumbs Value",
+            text_column="Titel",
+            value_column="Aantal duimpjes",
             value_aggregation="mean"      
         )
         table = props.PropsUIPromptConsentFormTable("netflix_rating", table_title, df, table_description, [wordcloud])
@@ -289,20 +292,23 @@ def extract_netflix_A(netflix_zip: str, selected_user: str) -> list[props.PropsU
     # Extract the viewing activity
     df = netflix.viewing_activity_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix viewings", "nl": "Netflix viewings"})
-        table_description = None
+        table_title = props.Translatable({"en": "What you watched", "nl": "Wat u heeft gekeken"})
+        table_description = props.Translatable({
+            "en": "This table shows what titles you watched when, for how long, and on what device. The two graphs show how much time you spent watching Netflix content", 
+            "nl": "Deze tabel laat zien welke titels je wanneer, hoe lang en op welk apparaat hebt bekeken. De twee grafieken laten zien hoeveel tijd je hebt besteed aan het kijken naar Netflix content"
+        })
 
         date_graph = props.PropsUIChartVisualization(
             title=props.Translatable({"en": "Hours Netflix watched", "nl": "Uren Netflix gekeken"}),
             type="area",
-            group= props.PropsUIChartGroup(column="Start Time", label='Datum', dateFormat="auto"),
-            values= [props.PropsUIChartValue(label='Uren Netflix gekeken', column='Duration in hours', aggregate="sum", addZeroes= True)]
+            group= props.PropsUIChartGroup(column="Start tijd", label='Datum', dateFormat="auto"),
+            values= [props.PropsUIChartValue(label='Uren Netflix gekeken', column='Aantal uur gekeken', aggregate="sum", addZeroes= True)]
         )
         hour_graph = props.PropsUIChartVisualization(
             title=props.Translatable({"en": "At what time of the day do you watch?", "nl": "Op welk tijdstip van de dag kijk je?"}),
             type="bar",
-            group= props.PropsUIChartGroup(column="Start Time", label='Uur van de dag', dateFormat="hour_cycle"),
-            values= [props.PropsUIChartValue(label='Aantal uur gekeken', column='Duration in hours', aggregate="sum", addZeroes= True)]
+            group= props.PropsUIChartGroup(column="Start tijd", label='Uur van de dag', dateFormat="hour_cycle"),
+            values= [props.PropsUIChartValue(label='Aantal uur gekeken', column='Aantal uur gekeken', aggregate="sum", addZeroes= True)]
         )
         table = props.PropsUIPromptConsentFormTable("netflix_viewings", table_title, df, table_description, [date_graph, hour_graph]) 
         tables_to_render.append(table)
@@ -310,43 +316,68 @@ def extract_netflix_A(netflix_zip: str, selected_user: str) -> list[props.PropsU
     # Extract the clickstream
     df = netflix.clickstream_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix clickstream", "nl": "Netflix clickstream"})
-        table = props.PropsUIPromptConsentFormTable("netflix_clickstream", table_title, df) 
+        table_description = props.Translatable({
+            "en": "This table shows how you used the Netflix interface for finding content and learning more about titles. It includes the device you used and the specific times you clicked on a button in the Netflix interface (e.g., movie details, search bar)", 
+            "nl": "Deze tabel laat zien hoe u de Netflix-interface heeft gebruikt om content te vinden en meer te leren over titels. Het bevat het apparaat dat u gebruikte en de specifieke tijden waarop u op een knop in de Netflix-interface klikte (bijv. filmdetails, zoekfunctie)"
+        })
+        table_title = props.Translatable({"en": "Which Netflixs functions you used", "nl": "Welke Netflix functies u heeft gebruikt"})
+        table = props.PropsUIPromptConsentFormTable("netflix_clickstream", table_title, df, table_description) 
         tables_to_render.append(table)
 
     # Extract my list
     df = netflix.my_list_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix bookmarks", "nl": "Netflix bookmarks"})
-        table = props.PropsUIPromptConsentFormTable("netflix_my_list", table_title, df) 
+        table_description = props.Translatable({
+            "en": "This table shows which titles you added to your watch list and on what dates",
+            "nl": "Deze tabel toont welke titels u aan uw watch list heeft toegevoegd en op welke data"
+        })
+        table_title = props.Translatable({"en": "What you added to your watch list", "nl": "Wat u aan uw watch list heeft toegevoegd"})
+        table = props.PropsUIPromptConsentFormTable("netflix_my_list", table_title, df, table_description) 
         tables_to_render.append(table)
 
     # Extract Indicated preferences
     df = netflix.indicated_preferences_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix indicated preferences", "nl": "Netflix indicated preferences"})
+        table_description = props.Translatable({
+            "en": "This table shows what titles you watched and whether you listed them as preferences (i.e, liked, added to your list)",
+            "nl": "Deze tabel toont welke titels u hebt bekeken en of u ze hebt aangemerkt als voorkeuren (d.w.z. leuk gevonden, toegevoegd aan uw lijst)"
+        })
+        table_title = props.Translatable({"en": "What you watched and listed as a preference", "nl": "Wat u heeft bekeken en als voorkeur heeft opgegeven"})
         table = props.PropsUIPromptConsentFormTable("netflix_indicated_preferences", table_title, df) 
         tables_to_render.append(table)
 
     # Extract playback related events
     df = netflix.playback_related_events_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix playback related events", "nl": "Netflix playback related events"})
-        table = props.PropsUIPromptConsentFormTable("netflix_playback", table_title, df) 
+        table_description = props.Translatable({
+            "nl": "Deze tabel toont welke titels u hebt bekeken, vanaf welke apparaten, op welk tijdstip en datum. Het omvat ook hoe vaak u per titel bent gestart, gestopt, op afspelen hebt gedrukt en op pauze hebt gedrukt",
+            "en": "This table shows what titles you watched from which devices at what time and date. It also includes how often you started, stopped, pressed play, and pressed pause per title"
+        })
+        table_title = props.Translatable({"en": "How you watched netflix content", "nl": "Hoe u netflix inhoud heeft bekeken"})
+        table = props.PropsUIPromptConsentFormTable("netflix_playback", table_title, df, table_description) 
         tables_to_render.append(table)
 
     # Extract search history
     df = netflix.search_history_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix search history", "nl": "Netflix search history"})
-        table = props.PropsUIPromptConsentFormTable("netflix_search", table_title, df) 
+        table_description = props.Translatable({
+            "nl": "Deze tabel toont welke titels u heeft gezocht. Het bevat het apparaat dat u gebruikte voor het zoeken, of de titel is gezocht in het kindvriendelijke account, de zoektermen die u gebruikte, het resultaat dat aan u werd getoond, en hoe u vervolgens met dat resultaat bent omgegaan (heeft u het aan uw kijklijst toegevoegd of het meteen afgespeeld?). Het toont ook in welke sectie van Netflix u de titel heeft gevonden en wanneer u de zoekopdracht heeft uitgevoerd",
+            "en": "This table shows which titles you have searched for. It includes the device you used for searching, whether the title was searched in the kid-friendly account, the search terms you used, the result that was shown to you, and how you proceeded with that result (did you add it to your watch list or play it immediately?). It also shows in which section of Netflix you found the title and when you did the search query"
+        })
+        table_title = props.Translatable({"en": "What you searched for", "nl": "Waar u op heeft gezocht"})
+        table = props.PropsUIPromptConsentFormTable("netflix_search", table_title, df, table_description) 
         tables_to_render.append(table)
 
     # Extract messages sent by netflix
     df = netflix.messages_sent_by_netflix_to_df(netflix_zip, selected_user)
     if not df.empty:
-        table_title = props.Translatable({"en": "Netflix messages", "nl": "Netflix messages"})
-        table = props.PropsUIPromptConsentFormTable("netflix_messages", table_title, df) 
+
+        table_description = props.Translatable({
+            "nl": "Deze tabel toont welke promotionele berichten u van Netflix heeft ontvangen over nieuwe titels. Het bevat het tijdstip waarop u het bericht ontving, het type melding, het kanaal waardoor het naar u werd verzonden, welke specifieke titel in het bericht werd gepromoot, en of u op het bericht heeft geklikt, samen met de frequentie van dergelijke kliks",
+            "en": "This table shows what promotional messages you received from Netflix about new titles. It includes the time you received the message, the type of notification, the channel through which it was sent, which specific title was promoted in the message, and whether you clicked on the message, along with the frequency of such clicks"
+        })
+        table_title = props.Translatable({"en": "Messages that you received from Netflix", "nl": "Berichten die u van Netflix heeft ontvangen"})
+        table = props.PropsUIPromptConsentFormTable("netflix_messages", table_title, df, table_description) 
         tables_to_render.append(table)
 
     return tables_to_render

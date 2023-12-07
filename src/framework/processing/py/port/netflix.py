@@ -114,8 +114,10 @@ def ratings_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
 
     columns_to_keep = ["Title Name", "Thumbs Value", "Device Model", "Event Utc Ts"]
     columns_to_rename =  {
-        "Event Utc Ts": "Date",
-        "Device Model": "Device"
+        "Title Name": "Titel",
+        "Event Utc Ts": "Datum",
+        "Device Model": "Gebruikte apparaat",
+        "Thumbs Value": "Aantal duimpjes"
     }
 
     df = netflix_to_df(netflix_zip, "Ratings.csv", selected_user)
@@ -155,10 +157,12 @@ def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFram
     Only keep the selected user
     """
 
-    columns_to_keep = ["Start Time","Duration","Attributes","Title","Supplemental Video Type","Device Type"]
+    columns_to_keep = ["Start Time","Duration","Title","Device Type"]
     columns_to_rename =  {
-        "Device Type": "Device",
-        "Duration": "Duration in hours"
+        "Start Time": "Start tijd",
+        "Title": "Titel",
+        "Device Type": "Apparaat",
+        "Duration": "Aantal uur gekeken"
     }
 
     df = netflix_to_df(netflix_zip, "ViewingActivity.csv", selected_user)
@@ -169,7 +173,7 @@ def viewing_activity_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFram
             df = df[columns_to_keep]
             df = df.rename(columns=columns_to_rename)
 
-        df['Duration in hours'] = df['Duration in hours'].apply(time_string_to_hours)
+        df['Aantal uur gekeken'] = df['Aantal uur gekeken'].apply(time_string_to_hours)
     except Exception as e:
         logger.error("Data extraction error: %s", e)
         
@@ -181,9 +185,10 @@ def clickstream_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
     Extract Clickstream from netflix zip to df
     """
 
-    columns_to_keep = ["Source","Navigation Level","Referrer Url","Webpage Url", "Click Utc Ts"]
+    columns_to_keep = ["Source","Navigation Level","Click Utc Ts"]
     columns_to_rename =  {
-        "Click Utc Ts": "Time"
+        "Click Utc Ts": "Tijd",
+        "Source": "Bron"
     }
 
     df = netflix_to_df(netflix_zip, "Clickstream.csv", selected_user)
@@ -204,7 +209,8 @@ def my_list_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
 
     columns_to_keep = ["Title Name", "Utc Title Add Date"]
     columns_to_rename =  {
-        "Utc Title Add Date": "Date"
+        "Utc Title Add Date": "Date",
+        "Title Name": "Titel"
     }
 
     df = netflix_to_df(netflix_zip, "MyList.csv", selected_user)
@@ -228,7 +234,7 @@ def indicated_preferences_to_df(netflix_zip: str, selected_user: str)  -> pd.Dat
 
     columns_to_keep = ["Show", "Has Watched", "Is Interested", "Event Date"]
     columns_to_rename =  {
-        "Event Date": "Date"
+        "Event Date": "Datum"
     }
 
     df = netflix_to_df(netflix_zip, "IndicatedPreferences.csv", selected_user)
@@ -262,8 +268,9 @@ def playback_related_events_to_df(netflix_zip: str, selected_user: str)  -> pd.D
 
     columns_to_keep = ["Title Description", "Device", "Playback Start Utc Ts"]
     columns_to_rename =  {
-        "Title Description": "Title",
-        "Playback Start Utc Ts": "Date time"
+        "Title Description": "Titel",
+        "Playback Start Utc Ts": "Datum",
+        "Device": "Apparaat"
     }
 
     df = netflix_to_df(netflix_zip, "PlaybackRelatedEvents.csv", selected_user)
@@ -288,7 +295,13 @@ def search_history_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
 
     columns_to_keep = ["Device", "Is Kids", "Query Typed", "Displayed Name", "Action", "Section", "Utc Timestamp"]
     columns_to_rename =  {
-        "Utc Timestamp": "Date time"
+        "Utc Timestamp": "Datum",
+        "Device": "Apparaat",
+        "Query Typed": "zoekopdracht",
+        "Displayed Name": "Titel",
+        "Action": "Actie",
+        "Section": "Sectie",
+        "Device": "Apparaat",
     }
 
     df = netflix_to_df(netflix_zip, "SearchHistory.csv", selected_user)
@@ -310,8 +323,10 @@ def messages_sent_by_netflix_to_df(netflix_zip: str, selected_user: str)  -> pd.
 
     columns_to_keep = ["Sent Utc Ts", "Message Name", "Channel", "Title Name", "Click Cnt"]
     columns_to_rename =  {
-        "Sent Utc Ts": "Date time",
-        "Click Cnt": "Click Count"
+        "Sent Utc Ts": "Datum",
+        "Click Cnt": "Aantal clicks",
+        "Title Name": "Titel",
+        "Message Name": "Naam bericht"
     }
 
     df = netflix_to_df(netflix_zip, "MessagesSentByNetflix.csv", selected_user)
