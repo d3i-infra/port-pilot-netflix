@@ -229,7 +229,7 @@ const donateQuestionLabel = new TextBundle()
   .add('en', 'Do you want to donate the above data?')
   .add('nl', 'Wilt u de bovenstaande gegevens doneren?')
 
-const donateButtonLabel = new TextBundle().add('en', 'Yes, donate').add('nl', 'Ja, doneer')
+const donateButtonLabel = new TextBundle().add('en', 'Yes, share for research').add('nl', 'Ja, deel voor onderzoek')
 
 const cancelButtonLabel = new TextBundle().add('en', 'No').add('nl', 'Nee')
 
