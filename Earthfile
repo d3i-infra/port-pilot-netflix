@@ -9,7 +9,7 @@ commit-hook:
 
 setup-base:
     COPY package.json package-lock.json ./
-    RUN npm ci
+    RUN npm i
     COPY --dir . ./
 
 test:
