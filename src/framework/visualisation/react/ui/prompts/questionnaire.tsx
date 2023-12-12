@@ -22,6 +22,10 @@ export const Questionnaire = (props: Props): JSX.Element => {
   const [answers, setAnswers] = React.useState<{}>({})
   const copy = prepareCopy(locale)
 
+  React.useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   function handleDonate (): void {
     const value = JSON.stringify(answers)
     resolve?.({ __type__: 'PayloadJSON', value })
