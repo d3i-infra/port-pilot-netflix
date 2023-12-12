@@ -236,9 +236,9 @@ const cancelButtonLabel = new TextBundle().add('en', 'No').add('nl', 'Nee')
 const description = new TextBundle()
   .add(
     'en',
-    'Determine whether you would like to donate the data below. Carefully check the data and adjust when required. With your donation you contribute to the previously described research. Thank you in advance.'
+    'Below, you will find information about your own Netflix viewing history. Examine the data carefully, and remove the information you do not wish to share. If you wish to share this data, click on the \'Yes, share for research\' button at the bottom of this page. By sharing this information, you contribute to research on viewing behavior on Netflix. Thank you very much in advance!'
   )
   .add(
     'nl',
-    'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.'
+    'Hieronder ziet u gegevens over uw eigen Netflix kijkgeschiedenis. Bekijk de gegevens zorgvuldig, en verwijder de gegevens die u niet wilt delen. Als u deze gegevens wilt delen, klik dan op de knop ‘Ja, deel voor onderzoek’ onderaan deze pagina. Door deze gegevens te delen draagt u bij aan onderzoek over kijkgedrag op Netflix, alvast heel erg bedankt!'
   )

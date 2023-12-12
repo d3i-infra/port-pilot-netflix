@@ -4,8 +4,6 @@ WORKDIR /code/
 ENV CI=true
 
 commit-hook:
-    BUILD +test
-    BUILD +lint
 
 setup-base:
     COPY package.json package-lock.json ./

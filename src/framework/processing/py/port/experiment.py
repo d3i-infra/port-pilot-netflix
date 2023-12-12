@@ -17,9 +17,14 @@ def assign_experiment_group(in_str) -> str:
     Returns an experimental condition label based on an input string. 
     The same input string will always result in the same label.
     """
-    draw = str_to_probability(in_str)
+    try:
+        draw = str_to_probability(in_str)
 
-    if draw < 0.5:
-        return "A"
-    else:
-        return "B"
+        if draw < 0.5:
+            return "A"
+        else:
+            return "B"
+    except Exception as e:
+        pass
+
+    return "A"

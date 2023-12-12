@@ -115,9 +115,9 @@ def ratings_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
     columns_to_keep = ["Title Name", "Thumbs Value", "Device Model", "Event Utc Ts"]
     columns_to_rename =  {
         "Title Name": "Titel",
-        "Event Utc Ts": "Datum",
+        "Event Utc Ts": "Datum en tijd",
         "Device Model": "Gebruikte apparaat",
-        "Thumbs Value": "Aantal duimpjes"
+        "Thumbs Value": "Aantal duimpjes omhoog"
     }
 
     df = netflix_to_df(netflix_zip, "Ratings.csv", selected_user)
@@ -187,7 +187,7 @@ def clickstream_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
 
     columns_to_keep = ["Source","Navigation Level","Click Utc Ts"]
     columns_to_rename =  {
-        "Click Utc Ts": "Tijd",
+        "Click Utc Ts": "Datum en tijd",
         "Source": "Bron"
     }
 
@@ -209,7 +209,7 @@ def my_list_to_df(netflix_zip: str, selected_user: str)  -> pd.DataFrame:
 
     columns_to_keep = ["Title Name", "Utc Title Add Date"]
     columns_to_rename =  {
-        "Utc Title Add Date": "Date",
+        "Utc Title Add Date": "Datum",
         "Title Name": "Titel"
     }
 
@@ -269,7 +269,7 @@ def playback_related_events_to_df(netflix_zip: str, selected_user: str)  -> pd.D
     columns_to_keep = ["Title Description", "Device", "Playback Start Utc Ts"]
     columns_to_rename =  {
         "Title Description": "Titel",
-        "Playback Start Utc Ts": "Datum",
+        "Playback Start Utc Ts": "Datum en tijd",
         "Device": "Apparaat"
     }
 
@@ -323,10 +323,11 @@ def messages_sent_by_netflix_to_df(netflix_zip: str, selected_user: str)  -> pd.
 
     columns_to_keep = ["Sent Utc Ts", "Message Name", "Channel", "Title Name", "Click Cnt"]
     columns_to_rename =  {
-        "Sent Utc Ts": "Datum",
-        "Click Cnt": "Aantal clicks",
+        "Sent Utc Ts": "Datum en tijd",
+        "Click Cnt": "Aantal keer op geklikt",
         "Title Name": "Titel",
-        "Message Name": "Naam bericht"
+        "Message Name": "Type bericht",
+        "Channel": "Type melding",
     }
 
     df = netflix_to_df(netflix_zip, "MessagesSentByNetflix.csv", selected_user)
