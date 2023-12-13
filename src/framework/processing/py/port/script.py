@@ -78,11 +78,6 @@ REVIEW_DATA_HEADER = props.Translatable({
     "nl": "Uw Netflix gegevens"
 })
 
-REVIEW_DATA_HEADER = props.Translatable({
-    "en": "Your Netflix data", 
-    "nl": "Uw Netflix gegevens"
-})
-
 RETRY_HEADER = props.Translatable({
     "en": "Try again", 
     "nl": "Probeer opnieuw"
@@ -130,6 +125,9 @@ def process(session_id):
 
                 # Experiment logic: you can flip A and B switches to see both conditions with the same DDP
                 group_label = experiment.assign_experiment_group("".join(users))
+
+                # CHANGE ME
+                group_label = "A"
                 
                 if len(users) == 1:
                     selected_user = users[0]
@@ -381,7 +379,7 @@ def extract_netflix(netflix_zip: str, selected_user: str, group_label: str) -> l
             "nl": "Deze tabel toont welke titels u hebt bekeken en of u ze hebt aangemerkt als voorkeuren (d.w.z. leuk gevonden, toegevoegd aan uw lijst)"
         })
         table_title = props.Translatable({"en": "What you watched and listed as a preference", "nl": "Wat u heeft bekeken en als voorkeur heeft opgegeven"})
-        table = props.PropsUIPromptConsentFormTable("netflix_indicated_preferences", table_title, df) 
+        table = props.PropsUIPromptConsentFormTable("netflix_indicated_preferences", table_title, df, table_description) 
         tables_to_render.append(table)
 
     # Extract playback related events

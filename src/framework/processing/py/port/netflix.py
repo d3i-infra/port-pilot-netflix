@@ -234,7 +234,10 @@ def indicated_preferences_to_df(netflix_zip: str, selected_user: str)  -> pd.Dat
 
     columns_to_keep = ["Show", "Has Watched", "Is Interested", "Event Date"]
     columns_to_rename =  {
-        "Event Date": "Datum"
+        "Event Date": "Datum en tijd",
+        "Has Watched": "Heeft u bekeken?",
+        "Is Interested": "Toegevoegd",
+        "Show": "Title"
     }
 
     df = netflix_to_df(netflix_zip, "IndicatedPreferences.csv", selected_user)
