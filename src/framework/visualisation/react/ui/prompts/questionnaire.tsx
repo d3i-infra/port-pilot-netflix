@@ -23,18 +23,18 @@ export const Questionnaire = (props: Props): JSX.Element => {
   const copy = prepareCopy(locale)
 
   React.useEffect(() => {
-    window.scrollTo(0, 0)
+    // check if running in an iframe
+    if (window.frameElement) {
+      window.parent.scrollTo(0,0)
+    } else {
+      window.scrollTo(0,0)
+    }
   }, [])
 
   function handleDonate (): void {
     const value = JSON.stringify(answers)
     resolve?.({ __type__: 'PayloadJSON', value })
   }
-
-  // Still here in case case we need a cancel button click event handler
-  // function handleCancel (): void {
-  //   resolve?.({ __type__: 'PayloadFalse', value: false })
-  // }
 
   const renderQuestion = (item: any): JSX.Element => {
     if (isPropsUIQuestionMultipleChoice(item)) {
