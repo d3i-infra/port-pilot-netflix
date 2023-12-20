@@ -182,15 +182,15 @@ def process(session_id):
 
         if table_list is not None:
             LOGGER.info("Prompt consent; %s", platform_name)
-            yield donate_logs(f"{group_label}-{session_id}-tracking")
+            yield donate_logs(f"{session_id}-tracking-{group_label}")
             prompt = create_consent_form(table_list)
             consent_result = yield render_donation_page(REVIEW_DATA_HEADER, prompt, progress)
 
             # Data was donated
             if consent_result.__type__ == "PayloadJSON":
                 LOGGER.info("Data donated; %s", platform_name)
-                yield donate(f"{group_label}-{platform_name}", consent_result.value)
-                yield donate_logs(f"{group_label}-{session_id}-tracking")
+                yield donate(f"{session_id}-{platform_name}-{group_label}", consent_result.value)
+                yield donate_logs(f"{session_id}-tracking-{group_label}")
                 yield donate_status(f"{session_id}-DONATED", "DONATED")
 
                 progress += step_percentage
@@ -198,15 +198,15 @@ def process(session_id):
                 render_questionnaire_results = yield render_questionnaire(progress)
 
                 if render_questionnaire_results.__type__ == "PayloadJSON":
-                    yield donate(f"{group_label}-questionnaire-donation", render_questionnaire_results.value)
+                    yield donate(f"{session_id}-questionnaire-donation-{group_label}", render_questionnaire_results.value)
                 else:
                     LOGGER.info("Skipped questionnaire: %s", platform_name)
-                    yield donate_logs(f"{group_label}-{session_id}-tracking")
+                    yield donate_logs(f"{group_label}-tracking-{session_id}")
 
             # Data was not donated
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
-                yield donate_logs(f"{group_label}-{session_id}-tracking")
+                yield donate_logs(f"{session_id}-tracking-{group_label}")
                 yield donate_status(f"{session_id}-SKIP-REVIEW-CONSENT", "SKIP_REVIEW_CONSENT")
 
                 progress += step_percentage
@@ -214,10 +214,10 @@ def process(session_id):
                 # render sad questionnaire
                 render_questionnaire_results = yield render_questionnaire_no_donation(progress)
                 if render_questionnaire_results.__type__ == "PayloadJSON":
-                    yield donate(f"{group_label}-questionnaire-no-donation", render_questionnaire_results.value)
+                    yield donate(f"{session_id}-questionnaire-no-donation-{group_label}", render_questionnaire_results.value)
                 else:
                     LOGGER.info("Skipped questionnaire: %s", platform_name)
-                    yield donate_logs(f"{session_id}-tracking")
+                    yield donate_logs(f"{session_id}-tracking-{group_label}")
 
             break
 
