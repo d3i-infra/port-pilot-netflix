@@ -35,10 +35,10 @@ TABLE_TITLES = {
 # Questionnaire questions
 UNDERSTANDING = props.Translatable({
     "en": "How would you describe the information that you shared with Utrecht University researchers?",
-    "nl": "Hoe zou je de gegevens omschrijven die jij hebt gedeeld met onderzoekers van Universiteit Utrecht?"
+    "nl": "Hoe zou u de gegevens omschrijven die u heeft gedeeld met onderzoekers van Universiteit Utrecht?"
 })
 
-INDENTIFY_CONSUMPTION = props.Translatable({"en": "In case you looked at the data presented on this page, did you recognise your Netflix watching patterns?", "nl": "Als je naar je data gekeken hebt, in hoeverre herken je je eigen kijkgedrag?"})
+INDENTIFY_CONSUMPTION = props.Translatable({"en": "In case you looked at the data presented on this page, did you recognise your Netflix watching patterns?", "nl": "Als u naar uw data gekeken hebt, in hoeverre herkent u uw eigen kijkgedrag?"})
 IDENTIFY_CONSUMPTION_CHOICES = [
     props.Translatable({"en": "I recognized my Netflix watching patterns", "nl": "Ik herkende mijn Netflix kijkgedrag"}),
     props.Translatable({"en": "I recognized my Netflix watching patterns and patters of those I share my account with", "nl": "Ik herkende mijn eigen Netflix kijkgedrag en die van anderen met wie ik mijn account deel"}),
@@ -47,7 +47,7 @@ IDENTIFY_CONSUMPTION_CHOICES = [
     props.Translatable({"en": "Other", "nl": "Anders"})
 ]
 
-ENJOYMENT = props.Translatable({"en": "In case you looked at the data presented on this page, how interesting did you find looking at your data?", "nl": "Als je naar je data hebt gekeken, hoe interessant vond je het om daar naar te kijken?"})
+ENJOYMENT = props.Translatable({"en": "In case you looked at the data presented on this page, how interesting did you find looking at your data?", "nl": "Als u naar uw data hebt gekeken, hoe interessant vond u het om daar naar te kijken?"})
 ENJOYMENT_CHOICES = [
     props.Translatable({"en": "not at all interesting", "nl": "Helemaal niet interessant"}),
     props.Translatable({"en": "somewhat uninteresting", "nl": "Een beetje oninteressant"}),
@@ -58,13 +58,13 @@ ENJOYMENT_CHOICES = [
 
 ADDITIONAL_COMMENTS = props.Translatable({
     "en": "Do you have any additional comments about the donation? Please add them here.",
-    "nl": "Heb je nog andere opmerkingen? Laat die hier achter."
+    "nl": "Heeft u nog andere opmerkingen? Laat die hier achter."
 })
 
 #Not donate questions
 NO_DONATION_REASONS = props.Translatable({
     "en": "What is/are the reason(s) that you decided not to donate your data?",
-    "nl": "Wat is de reden dat je er voor gekozen hebt je data niet te doneren?"
+    "nl": "Wat is de reden dat u er voor gekozen hebt uw data niet te doneren?"
 })
 
 # Headers
@@ -126,9 +126,6 @@ def process(session_id):
                 # Experiment logic: you can flip A and B switches to see both conditions with the same DDP
                 group_label = experiment.assign_experiment_group("".join(users))
 
-                # CHANGE ME
-                group_label = "A"
-                
                 if len(users) == 1:
                     selected_user = users[0]
                     extraction_result = extract_netflix(file_result.value, selected_user, group_label)
@@ -157,6 +154,7 @@ def process(session_id):
                 else:
                     LOGGER.info("Skipped during retry ending flow")
                     yield donate_logs(f"{session_id}-tracking")
+                    yield donate_status(f"{session_id}-SKIP-RETRY-FLOW", "SKIP_RETRY_FLOW")
                     break
 
             # Enter retry flow, reason: valid DDP but no users could be extracted
@@ -170,11 +168,13 @@ def process(session_id):
                 else:
                     LOGGER.info("Skipped during retry ending flow")
                     yield donate_logs(f"{session_id}-tracking")
+                    yield donate_status(f"{session_id}-SKIP-RETRY-FLOW", "SKIP_RETRY_FLOW")
                     break
 
         else:
             LOGGER.info("Skipped at file selection ending flow")
             yield donate_logs(f"{session_id}-tracking")
+            yield donate_status(f"{session_id}-SKIP-FILE-SELECTION", "SKIP_FILE_SELECTION")
             break
 
         # STEP 2: ask for consent
@@ -191,6 +191,7 @@ def process(session_id):
                 LOGGER.info("Data donated; %s", platform_name)
                 yield donate(f"{group_label}-{platform_name}", consent_result.value)
                 yield donate_logs(f"{group_label}-{session_id}-tracking")
+                yield donate_status(f"{session_id}-DONATED", "DONATED")
 
                 progress += step_percentage
                 # render happy questionnaire
@@ -206,6 +207,7 @@ def process(session_id):
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
                 yield donate_logs(f"{group_label}-{session_id}-tracking")
+                yield donate_status(f"{session_id}-SKIP-REVIEW-CONSENT", "SKIP_REVIEW_CONSENT")
 
                 progress += step_percentage
 
@@ -249,6 +251,10 @@ def donate_logs(key):
         log_data = ["no logs"]
 
     return donate(key, json.dumps(log_data))
+
+
+def donate_status(filename: str, message: str):
+    return donate(filename, json.dumps({"status": message}))
 
 
 def prompt_radio_menu_select_username(users, progress):
